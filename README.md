@@ -87,7 +87,7 @@ Run the following command to execute unit tests:
 ./mvnw -ntp verify
 ```
 
-## 🏠 Build
+## 🏗️ Build
 
 To build the application for production with GraalVM Native Image:
 
