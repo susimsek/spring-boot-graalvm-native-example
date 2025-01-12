@@ -15,11 +15,11 @@ Explore high-speed application startup, reduced memory footprint, and seamless i
 - 🧑‍💻 [Development Setup](#-development-setup)
 - 🔄 [Live Reload](#-live-reload)
 - 🧪 [Testing](#-testing)
-- 🏠 [Build](#-build)
-- 🕵️‍♂️ [Code Analysis](#-code-analysis)
-- 🛡️ [Code Quality](#-code-quality)
+- 🏗️ [Build](#️-build)
+- 🕵️‍♂️ [Code Analysis](#️-code-analysis)
+- 🛡️ [Code Quality](#️-code-quality)
 - 🐳 [Docker](#-docker)
-- 🛠️ [Used Technologies](#-used-technologies)
+- 🛠️ [Used Technologies](#️-used-technologies)
 
 ## 📖 Features
 
