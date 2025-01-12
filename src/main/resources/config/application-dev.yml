@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  devtools:
+    livereload:
+      enabled: true
+  messages:
+    cache-duration: 1h
+
+logging:
+  level:
+    ROOT: DEBUG
+    io.github.susimsek.springbootgraalvmnativeexample: DEBUG
+  async:
+    queueSize: 10000
+    discardingThreshold: 0
+    maxFlushTime: 5000
+    includeCallerData: false
+
+management:
+  tracing:
+    enabled: false
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411
