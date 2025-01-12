@@ -32,7 +32,7 @@
         <maven.version>3.2.5</maven.version>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
         <checkstyle.version>10.18.1</checkstyle.version>
-        <bootstrap.verison>5.3.0</bootstrap.verison>
+        <bootstrap.verison>5.3.3</bootstrap.verison>
         <native-image-name>native-executable</native-image-name>
         <native-build-args>--verbose -J-Xmx14g</native-build-args>
         <maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
