@@ -109,8 +109,6 @@ To build the application for production with GraalVM Native Image:
 
 ## 🕵️ Code Analysis
 
-Checkstyle is used to enforce coding standards and maintain code consistency.
-
 To check the Java code style using Checkstyle, execute:
 
 ```bash
