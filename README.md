@@ -41,6 +41,10 @@ The application will be available at http://localhost:8080.
 
 ## 🧑‍💻 Development Setup
 
+Before you begin, ensure you have the following installed:
+
+- **Java 21**
+
 To clone and run this application locally:
 
 ```bash
