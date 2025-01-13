@@ -164,7 +164,7 @@ docker-compose -f deploy/docker-compose/prod/docker-compose.yml down
 To deploy the application on Kubernetes using Helm, run the following command:
 
 ```bash
-helm install spring-nextjs-app deploy/helm/graalvm-native-app
+helm install graalvm-native-app deploy/helm/graalvm-native-app
 ```
 
 To uninstall the Helm deployment:
