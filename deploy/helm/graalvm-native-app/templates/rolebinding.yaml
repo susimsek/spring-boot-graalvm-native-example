@@ -1,0 +1,20 @@
+{{- if and .Values.serviceAccount.create .Values.rbac.create }}
+kind: RoleBinding
+apiVersion: {{ include "graalvm-native-app.capabilities.rbac.apiVersion" . }}
+metadata:
+  name: {{ template "graalvm-native-app.fullname" . }}
+  namespace: {{ include "graalvm-native-app.namespace" . | quote }}
+  labels: {{- include "graalvm-native-app.labels" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/component: graalvm-native-app
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "graalvm-native-app.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "graalvm-native-app.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "graalvm-native-app.serviceAccountName" . }}
+    namespace: {{ include "graalvm-native-app.namespace" . | quote }}
+{{- end }}

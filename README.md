@@ -21,6 +21,7 @@ Explore high-speed application startup, reduced memory footprint, and seamless i
 - 🕵️‍♂️ [Code Analysis](#️-code-analysis)
 - 🛡️ [Code Quality](#️-code-quality)
 - 🐳 [Docker](#-docker)
+- 🚀 [Deployment](#-deployment)
 - 🛠️ [Used Technologies](#️-used-technologies)
 
 ## 📖 Features
@@ -141,6 +142,36 @@ docker run -d -p 8080:8080 spring-boot-graalvm-samples
 ```
 
 The application will be available at `http://localhost:8080`.
+
+## 🚀 Deployment
+
+### Docker Compose Deployment
+
+To deploy the application using Docker Compose, run the following command:
+
+```bash
+docker-compose -f deploy/docker-compose/prod/docker-compose.yml up -d
+```
+
+To stop and remove the Docker Compose deployment:
+
+```bash
+docker-compose -f deploy/docker-compose/prod/docker-compose.yml down
+```
+
+### Kubernetes Deployment
+
+To deploy the application on Kubernetes using Helm, run the following command:
+
+```bash
+helm install spring-nextjs-app deploy/helm/graalvm-native-app
+```
+
+To uninstall the Helm deployment:
+
+```bash
+helm uninstall graalvm-native-app
+```
 
 ## 🛠️ Used Technologies
 
