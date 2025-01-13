@@ -103,15 +103,14 @@ Run the following command to execute unit tests:
 
 To build the application for production with GraalVM Native Image:
 
-1. Ensure GraalVM is installed and set up correctly.
-2. Ensure the following prerequisites:
+1. Ensure the following prerequisites:
   - **Java 21**
   - **GraalVM 22.3+** (ensure `native-image` is available)
-3. Run the native image build:
+2. Run the native image build:
    ```bash
    ./mvnw native:compile -B -ntp -Pnative,prod -DskipTests
    ```
-4. The executable will be available as `target/native-executable`.
+3. The executable will be available as `target/native-executable`.
 
 ## 🕵️ Code Analysis
 
