@@ -172,7 +172,7 @@ helm uninstall graalvm-native-app
 
 ## 🛠️ Used Technologies
 
-![Java](https://img.shields.io/badge/Java-17-blue?logo=openjdk&logoColor=white)  
+![Java](https://img.shields.io/badge/Java-21-blue?logo=openjdk&logoColor=white)  
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-2.6.7-green?logo=spring&logoColor=white)  
 ![GraalVM](https://img.shields.io/badge/GraalVM-Native_Image-FF8C00?logo=graalvm&logoColor=white)  
 ![Spring Boot Actuator](https://img.shields.io/badge/Spring_Boot_Actuator-green?logo=spring&logoColor=white)  
