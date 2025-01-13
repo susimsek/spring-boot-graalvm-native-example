@@ -49,7 +49,7 @@ To clone and run this application locally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/example/spring-boot-graalvm-native-example.git
+git clone https://github.com/susimsek/spring-boot-graalvm-native-example.git
 
 # Navigate to the project directory
 cd spring-boot-graalvm-native-example
