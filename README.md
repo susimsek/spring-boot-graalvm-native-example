@@ -12,6 +12,7 @@ Explore high-speed application startup, reduced memory footprint, and seamless i
 ## 🚀 Quick Links
 
 - 📖 [Features](#-features)
+- 🎥 [Demo Preview](#-demo-preview)
 - 🧑‍💻 [Development Setup](#-development-setup)
 - 🔄 [Live Reload](#-live-reload)
 - 🧪 [Testing](#-testing)
@@ -27,6 +28,14 @@ Explore high-speed application startup, reduced memory footprint, and seamless i
 - 🌐 **Modern Spring Boot**: Built on the latest Spring Boot version.
 - 🔐 **Secure**: Implements robust authentication mechanisms.
 - 🔄 **Extensible**: Add your own features with ease.
+
+## 🎥 Demo Preview
+
+Below is a quick preview of the Application:
+
+The application will be available at http://localhost:8080.
+
+![Demo Preview](https://github.com/susimsek/spring-boot-graalvm-native-example/blob/main/images/webapp.png)
 
 ## 🧑‍💻 Development Setup
 
