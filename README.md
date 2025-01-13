@@ -50,11 +50,8 @@ git clone https://github.com/example/spring-boot-graalvm-native-example.git
 # Navigate to the project directory
 cd spring-boot-graalvm-native-example
 
-# Build the project
- ./mvnw native:compile -B -ntp -Pnative,prod -DskipTests
-
 # Run the application
-./target/native-executable
+./mvnw spring-boot:run
 ```
 
 ## 🔄 Live Reload
