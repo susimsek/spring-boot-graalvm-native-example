@@ -106,12 +106,18 @@ To build the application for production with GraalVM Native Image:
 1. Ensure the following prerequisites:
   - **Java 21**
   - **GraalVM 22.3+** (ensure `native-image` is available)
+  - **UPX** (optional, for executable compression)
 2. Run the native image build:
    ```bash
    ./mvnw native:compile -B -ntp -Pnative,prod -DskipTests
    ```
 3. The executable will be available as `target/native-executable`.
 
+4. Optionally, compress the native executable using UPX for smaller file size:
+   ```bash
+   upx --ultra-brute --lzma target/native-executable
+   ```
+   
 ## 🕵️ Code Analysis
 
 To check the Java code style using Checkstyle, execute:
@@ -188,6 +194,7 @@ helm uninstall graalvm-native-app
 ![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?logo=sonarqube&logoColor=white)  
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)  
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)  
-![Helm](https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white) 
+![Helm](https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white)  
+![UPX](https://img.shields.io/badge/UPX-Executable_Compression-0096D6?logo=upx&logoColor=white)
 
 
