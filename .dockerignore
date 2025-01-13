@@ -1,20 +1,4 @@
 ######################
-# Go
-######################
-/bin/
-/pkg/
-/dist/
-/coverage.out
-*.test
-*.o
-*.a
-*.out
-
-# Go mod cache
-/modcache/
-/vendor/
-
-######################
 # Eclipse
 ######################
 *.pydevproject
