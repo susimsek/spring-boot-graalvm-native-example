@@ -25,10 +25,10 @@ Explore high-speed application startup, reduced memory footprint, and seamless i
 
 ## 📖 Features
 
-- 🚀 **High Performance**: Leverages GraalVM Native Image for improved performance and startup time.
-- 🌐 **Modern Spring Boot**: Built on the latest Spring Boot version.
-- 🔐 **Secure**: Implements robust authentication mechanisms.
-- 🔄 **Extensible**: Add your own features with ease.
+- 🚀 **High Performance**: Powered by GraalVM Native Image for faster startup times and reduced memory footprint.
+- 🌐 **Modern Spring Boot**: Utilizes the latest Spring Boot version, optimized for GraalVM compatibility.
+- 🛠️ **Production-Ready**: Supports native builds for cloud-native and containerized deployments.
+- 🔄 **Extensible**: Easily adaptable with the flexibility to add custom features.
 
 ## 🎥 Demo Preview
 
