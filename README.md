@@ -20,6 +20,7 @@ Explore high-speed application startup, reduced memory footprint, and seamless i
 - 🏗️ [Build](#️-build)
 - 🕵️‍♂️ [Code Analysis](#️-code-analysis)
 - 🛡️ [Code Quality](#️-code-quality)
+- 📜 [API Documentation](#-api-documentation)
 - 🐳 [Docker](#-docker)
 - 🚀 [Deployment](#-deployment)
 - 🛠️ [Used Technologies](#️-used-technologies)
@@ -133,6 +134,12 @@ To assess code quality locally using SonarQube, execute:
 ```bash
 mvn -Psonar compile initialize sonar:sonar
 ```
+
+## 📜 API Documentation
+
+To view the API documentation, access the Swagger UI at:
+
+http://localhost:8080/swagger-ui.html
 
 ## 🐳 Docker
 
