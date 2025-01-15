@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/v1")
-@Tag(name = "Hello API", description = "Endpoints for greeting messages")
+@Tag(name = "hello", description = "Hello API")
 public class HelloController {
 
     /**
