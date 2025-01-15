@@ -21,6 +21,7 @@ Explore high-speed application startup, reduced memory footprint, and seamless i
 - 🕵️‍♂️ [Code Analysis](#️-code-analysis)
 - 🛡️ [Code Quality](#️-code-quality)
 - 📜 [API Documentation](#-api-documentation)
+- 📚 [Java Documentation](#-java-documentation)
 - 🐳 [Docker](#-docker)
 - 🚀 [Deployment](#-deployment)
 - 🛠️ [Used Technologies](#️-used-technologies)
@@ -140,6 +141,28 @@ mvn -Psonar compile initialize sonar:sonar
 To view the API documentation, access the Swagger UI at:
 
 http://localhost:8080/swagger-ui.html
+
+## 📚 Java Documentation
+
+To generate and view the Java documentation for this project:
+
+### Generate JavaDocs
+
+Run the following Maven command to generate the documentation:
+
+```bash
+mvn javadoc:javadoc
+```
+
+The generated documentation can be found under the `target/reports/apidocs` directory.
+
+### Open JavaDocs
+
+To view the documentation, open the following file in your browser:
+
+```text
+target/reports/apidocs/index.html
+```
 
 ## 🐳 Docker
 
