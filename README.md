@@ -198,6 +198,8 @@ helm uninstall graalvm-native-app
 ![Checkstyle](https://img.shields.io/badge/Checkstyle-Code_Analysis-orange?logo=openjdk&logoColor=white)  
 ![Lombok](https://img.shields.io/badge/Lombok-orange?logo=openjdk&logoColor=white)  
 ![Maven](https://img.shields.io/badge/Maven-Build_Automation-C71A36?logo=apachemaven&logoColor=white)  
+![Springdoc](https://img.shields.io/badge/Springdoc-API_Documentation-6DB33F?logo=spring&logoColor=white)    
+![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-007396?logo=apachemaven&logoColor=white)   
 ![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?logo=sonarqube&logoColor=white)  
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)  
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)  
