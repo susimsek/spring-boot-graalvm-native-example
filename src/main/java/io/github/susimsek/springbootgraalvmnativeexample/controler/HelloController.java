@@ -9,11 +9,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Rest Controller for greeting messages.
+ */
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Hello API", description = "Endpoints for greeting messages")
 public class HelloController {
 
+    /**
+     * {@code GET /hello} : Returns a greeting message.
+     *
+     * @return the greeting message as plain text.
+     */
     @Operation(
         summary = "Say Hello",
         description = "Returns a greeting message."
