@@ -2,32 +2,38 @@ const responseElement = document.getElementById('apiResponse');
 const fetchHelloButton = document.getElementById('fetchHello');
 const resetButton = document.getElementById('resetResponse');
 const faviconLink = document.querySelector('link[rel="icon"]');
+const themeToggle = document.getElementById('themeToggle');
 
 function toggleResetButton() {
   resetButton.disabled = responseElement.textContent.trim() === "";
 }
 
-function updateFaviconBasedOnTheme(event) {
-  if (event.matches) {
-    faviconLink.href = "/favicons/favicon-dark.ico";
-  } else {
-    faviconLink.href = "/favicons/favicon-light.ico";
-  }
+function updateFaviconBasedOnTheme(theme) {
+  faviconLink.href = theme === 'dark'
+    ? "/favicons/favicon-dark.ico"
+    : "/favicons/favicon-light.ico";
 }
 
-function setInitialFavicon() {
-  const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  if (isDarkMode) {
-    faviconLink.href = "/favicons/favicon-dark.ico";
+function applyTheme(theme) {
+  const htmlElement = document.documentElement;
+
+  htmlElement.setAttribute('data-theme', theme);
+
+  if (theme === 'dark') {
+    htmlElement.classList.add('dark-theme');
   } else {
-    faviconLink.href = "/favicons/favicon-light.ico";
+    htmlElement.classList.remove('dark-theme');
   }
+
+  updateFaviconBasedOnTheme(theme);
+
+  localStorage.setItem('theme', theme);
 }
 
-const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-darkModeMediaQuery.addEventListener('change', updateFaviconBasedOnTheme);
-
-
+themeToggle.addEventListener('change', () => {
+  const theme = themeToggle.checked ? 'dark' : 'light';
+  applyTheme(theme);
+});
 
 fetchHelloButton.addEventListener('click', () => {
   responseElement.textContent = "Loading...";
@@ -54,5 +60,10 @@ resetButton.addEventListener('click', () => {
   toggleResetButton();
 });
 
-setInitialFavicon();
+const savedTheme = localStorage.getItem('theme') || 'light';
+if (savedTheme === 'dark') {
+  themeToggle.checked = true;
+}
+applyTheme(savedTheme);
+
 toggleResetButton();
