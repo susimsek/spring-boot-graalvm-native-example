@@ -227,6 +227,8 @@ helm uninstall graalvm-native-app
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)  
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)  
 ![Helm](https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white)  
-![UPX](https://img.shields.io/badge/UPX-Executable_Compression-0096D6?logo=upx&logoColor=white)
+![UPX](https://img.shields.io/badge/UPX-Executable_Compression-0096D6?logo=upx&logoColor=white)  
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple?logo=bootstrap&logoColor=white)    
+![Font Awesome](https://img.shields.io/badge/Font_Awesome-6.0-339AF0?logo=fontawesome&logoColor=white)
 
 
