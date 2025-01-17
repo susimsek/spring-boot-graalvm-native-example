@@ -1,24 +1,28 @@
 package io.github.susimsek.springbootgraalvmnativeexample.controler;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.http.MediaType.TEXT_PLAIN;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
-@WebMvcTest(HelloController.class)
+@WebFluxTest(controllers = HelloController.class)
 class HelloControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private WebTestClient webTestClient;
 
     @Test
-    void shouldReturnHelloMessage() throws Exception {
-        mockMvc.perform(get("/api/v1/hello"))
-            .andExpect(status().isOk())
-            .andExpect(content().string("Hello, GraalVM Native Image!"));
+    void sayHello_shouldReturnGreetingMessage() {
+        // Perform GET request to /api/v1/hello
+        webTestClient.get()
+            .uri("/api/v1/hello")
+            .accept(TEXT_PLAIN)
+            .exchange() // Perform the exchange
+            .expectStatus().isOk() // Verify status is 200 OK
+            .expectHeader().contentType("text/plain;charset=UTF-8") // Verify Content-Type is text/plain
+            .expectBody(String.class) // Verify response body
+            .isEqualTo("Hello, GraalVM Native Image!"); // Assert the exact response
     }
 }

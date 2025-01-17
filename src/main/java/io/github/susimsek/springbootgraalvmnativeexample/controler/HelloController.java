@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 /**
  * Rest Controller for greeting messages.
@@ -20,7 +21,7 @@ public class HelloController {
     /**
      * {@code GET /hello} : Returns a greeting message.
      *
-     * @return the greeting message as plain text.
+     * @return the greeting message as plain text wrapped in a Mono.
      */
     @Operation(
         summary = "Say Hello",
@@ -35,7 +36,7 @@ public class HelloController {
         )
     )
     @GetMapping("/hello")
-    public String sayHello() {
-        return "Hello, GraalVM Native Image!";
+    public Mono<String> sayHello() {
+        return Mono.just("Hello, GraalVM Native Image!");
     }
 }
