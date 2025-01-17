@@ -2,6 +2,9 @@
   --body-background: #ffffff;
   --border-color: #e1e1e1;
   --navbar-background: #ffffff;
+  --navbar-font-color: var(--body-font-color);
+  --navbar-height: calc(83/var(--rem-base)*1rem);
+  --z-index-navbar: 100;
   --nav-panel-divider-color: #e1e1e1;
   --body-line-height: 1.15;
   --body-font-color: #191e1e;
@@ -34,12 +37,14 @@
   --scrollbar-thumb-color: silver;
   --scrollbar-hover-thumb-color: #b3b3b3;
   --scrollbar-track-color: #f1f1f1;
+  --rem-base: 18;
 }
 
 html.dark-theme {
   --border-color: hsla(0, 0%, 100%, 0.2);
   --body-background: #1b1f23;
   --navbar-background: #1b1f23;
+  --navbar-font-color: var(--body-font-color);
   --nav-panel-divider-color: hsla(0,0%,100%,.2);
   --body-font-color: #bbbcbe;
   --heading-font-color: #cecfd1;
@@ -93,6 +98,14 @@ header {
   background-color: var(--navbar-background);
   border-bottom: 1px solid var(--nav-panel-divider-color);
   box-shadow: 0 2px 4px var(--card-shadow-color);
+  color: var(--navbar-font-color);
+  font-size: calc(16/var(--rem-base)*1rem);
+  height: var(--navbar-height);
+  padding: 0;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: var(--z-index-navbar);
 }
 
 .navbar a {
@@ -159,11 +172,12 @@ main {
 footer {
   background-color: var(--footer-background);
   border-top: 1px solid var(--color-accent-1);
-  padding: 1rem 0;
+  padding: 1.5rem;
   text-align: center;
   line-height: var(--footer-line-height);
   color: var(--footer-font-color);
   box-shadow: 0 -2px 4px var(--card-shadow-color);
+  font-size: calc(15/var(--rem-base)*1rem);
 }
 
 .shadow-sm {
