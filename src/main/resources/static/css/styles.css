@@ -11,6 +11,9 @@
   --main-background: #fefefe;
   --card-shadow-color: rgba(0, 0, 0, 0.1);
   --footer-background: #f8f9fa;
+  --main-font-size: inherit;
+  --main-line-height: 1.6;
+  --footer-line-height: 1.6;
   --color-accent-1: #ebf2f2;
   --footer-font-color: #111111;
   --success-bg-color: #d4edda;
@@ -87,16 +90,22 @@ header {
   color: var(--body-font-color);
 }
 
+.navbar-item {
+  font-family: var(--font-family), sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .logo {
   height: 45px;
-  margin-right: 10px;
+  max-width: 250px;
 }
 
 main {
   color: var(--body-font-color);
-  font-size: inherit;
+  font-size: var(--main-font-size);
   hyphens: auto;
-  line-height: 1.6;
+  line-height: var(--main-line-height);
   flex: 1;
   display: flex;
   align-items: center;
@@ -135,7 +144,7 @@ footer {
   border-top: 1px solid var(--color-accent-1);
   padding: 1rem 0;
   text-align: center;
-  font-size: 0.9rem;
+  line-height: var(--footer-line-height);
   color: var(--footer-font-color);
   box-shadow: 0 -2px 4px var(--card-shadow-color);
 }
@@ -174,6 +183,7 @@ footer {
   display: inline-block;
   width: 60px;
   height: 30px;
+  margin-right: 1rem;
 }
 
 .switch-theme-checkbox {
