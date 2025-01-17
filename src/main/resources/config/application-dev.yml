@@ -3,8 +3,12 @@ server:
 
 spring:
   devtools:
+    restart:
+      enabled: true
+      exclude: static/**
     livereload:
       enabled: true
+      port: 35729
   messages:
     cache-duration: 1h
 
