@@ -25,6 +25,8 @@
   --switch-background-color: #d7e7e7;
   --switch-icon-color: #333;
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --link-font-color: #1565c0;
+  --link_hover-font-color: #104d92;
 }
 
 html.dark-theme {
@@ -50,6 +52,8 @@ html.dark-theme {
   --info-border-color: #2b6d85;
   --switch-background-color: #41464b;
   --switch-icon-color: #e0e0e0;
+  --link-font-color: #086dc3;
+  --link_hover-font-color: #107ddd;
 }
 
 html {
@@ -76,13 +80,15 @@ header {
 }
 
 .navbar-brand {
+  padding: 0 1rem;
+  display: flex;
   font-weight: bold;
   font-size: 1.5rem;
   color: var(--body-font-color);
 }
 
 .logo {
-  height: 48px;
+  height: 45px;
   margin-right: 10px;
 }
 
@@ -170,13 +176,13 @@ footer {
   height: 30px;
 }
 
-.theme-switch-checkbox {
+.switch-theme-checkbox {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.theme-switch-label {
+.switch-theme-label {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -188,12 +194,13 @@ footer {
   transition: background-color 0.3s ease;
 }
 
-.theme-switch-icon {
+.theme-toggler span.icon {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  height: 20px;
-  width: 20px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
   color: var(--switch-icon-color);
   display: flex;
   justify-content: center;
@@ -202,24 +209,24 @@ footer {
 }
 
 .sun-icon {
-  left: 10px;
+  left: 6px;
   opacity: 1;
 }
 
 .moon-icon {
-  right: 10px;
+  right: 6px;
   opacity: 0;
 }
 
-.theme-switch-checkbox:checked + .theme-switch-label .sun-icon {
+.switch-theme-checkbox:checked + .switch-theme-label .sun-icon {
   opacity: 0;
 }
 
-.theme-switch-checkbox:checked + .theme-switch-label .moon-icon {
+.switch-theme-checkbox:checked + .switch-theme-label .moon-icon {
   opacity: 1;
 }
 
-.theme-switch-checkbox:checked + .theme-switch-label {
+.switch-theme-checkbox:checked + .switch-theme-label {
   background-color: var(--switch-background-color);
 }
 
@@ -228,4 +235,13 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: var(--heading-font-weight);
   hyphens: none;
   line-height: 1.3;
+}
+
+a {
+  text-decoration: none;
+  color: var(--link-font-color);
+}
+
+a:hover {
+  color: var(--link_hover-font-color);
 }
