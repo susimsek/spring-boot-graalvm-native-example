@@ -14,6 +14,7 @@
     <springProperty name="logging.async.maxFlushTime" source="logging.async.maxFlushTime" defaultValue="1000"/>
     <springProperty name="logging.async.includeCallerData" source="logging.async.includeCallerData" defaultValue="false"/>
 
+    <logger name="io.netty" level="WARN"/>
     <logger name="org.apache" level="WARN"/>
     <logger name="org.hibernate" level="WARN"/>
     <logger name="org.hibernate.validator" level="WARN"/>
@@ -24,6 +25,7 @@
     <logger name="org.springframework.graphql" level="WARN"/>
     <logger name="org.springframework.security" level="WARN"/>
     <logger name="org.springframework.security.oauth2" level="WARN"/>
+    <logger name="org.springframework.boot.autoconfigure.logging" level="INFO"/>
     <logger name="org.springframework.cache" level="WARN"/>
     <logger name="org.springframework.web.socket" level="WARN"/>
     <logger name="org.thymeleaf" level="WARN"/>
@@ -33,7 +35,7 @@
     <logger name="com.netflix" level="WARN"/>
     <logger name="com.netflix.discovery" level="WARN"/>
     <logger name="io.swagger.v3" level="WARN"/>
-    <logger name="graphql" level="WARN"/>
+    <logger name="reactor" level="WARN"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
