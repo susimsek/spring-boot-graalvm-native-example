@@ -21,7 +21,7 @@ Explore high-speed application startup, reduced memory footprint, and seamless i
 - 🕵️‍♂️ [Code Analysis](#️-code-analysis)
 - 🛡️ [Code Quality](#️-code-quality)
 - 📜 [API Documentation](#-api-documentation)
-- 📚 [Code Documentation](#-java-documentation)
+- 📚 [Code Documentation](#-code-documentation)
 - 🐳 [Docker](#-docker)
 - 🚀 [Deployment](#-deployment)
 - 🛠️ [Used Technologies](#️-used-technologies)
