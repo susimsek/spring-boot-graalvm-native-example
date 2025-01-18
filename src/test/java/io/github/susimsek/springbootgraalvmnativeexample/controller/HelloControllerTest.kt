@@ -22,14 +22,19 @@ class HelloControllerTest {
   @Test
   fun `should return greeting message`() {
     runBlocking {
-      `when`(helloService.getGreeting()).thenReturn(GreetingDTO(message = "Hello, GraalVM Native Image!"))
+      // Arrange
+      val expectedMessage = "Hello, GraalVM Native Image!"
+      `when`(helloService.getGreeting()).thenReturn(GreetingDTO(message = expectedMessage))
 
-      webTestClient.get()
+      // Act
+      val responseSpec = webTestClient.get()
         .uri("/api/v1/hello")
         .exchange()
-        .expectStatus().isOk
+
+      // Assert
+      responseSpec.expectStatus().isOk
         .expectBody()
-        .jsonPath("$.message").isEqualTo("Hello, GraalVM Native Image!")
+        .jsonPath("$.message").isEqualTo(expectedMessage)
     }
   }
 }
