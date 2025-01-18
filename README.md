@@ -243,7 +243,7 @@ helm uninstall graalvm-native-app
 ![Spring Boot Actuator](https://img.shields.io/badge/Spring_Boot_Actuator-Monitoring-green?logo=spring&logoColor=white)  
 ![Checkstyle](https://img.shields.io/badge/Checkstyle-Code_Analysis-orange?logo=openjdk&logoColor=white)  
 ![Detekt](https://img.shields.io/badge/Detekt-Code_Analysis-orange?logo=kotlin&logoColor=white)  
-![Lombok](https://img.shields.io/badge/Lombok-Boilerplate_Code_Reduction-orange?logo=openjdk&logoColor=white)  
+![Lombok](https://img.shields.io/badge/Lombok-Boilerplate_Code_Reduction-007396?logo=openjdk&logoColor=white)  
 ![Maven](https://img.shields.io/badge/Maven-Build_Automation-C71A36?logo=apachemaven&logoColor=white)  
 ![Springdoc](https://img.shields.io/badge/Springdoc-API_Documentation-6DB33F?logo=spring&logoColor=white)    
 ![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-007396?logo=openjdk&logoColor=white)   
