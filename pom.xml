@@ -152,8 +152,8 @@
   </dependencyManagement>
 
   <build>
-    <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
-    <testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>
+    <sourceDirectory>src/main/kotlin</sourceDirectory>
+    <testSourceDirectory>src/test/kotlin</testSourceDirectory>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
@@ -231,7 +231,7 @@
             <configuration>
               <sourceDirs>
                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                <sourceDir>src/main/kotlin</sourceDir>
               </sourceDirs>
               <annotationProcessorPaths>
                 <path>
@@ -251,7 +251,7 @@
             <configuration>
               <sourceDirs>
                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                <sourceDir>src/main/kotlin</sourceDir>
               </sourceDirs>
             </configuration>
           </execution>
@@ -397,7 +397,7 @@
             </goals>
             <configuration>
               <addOutputDirectory>false</addOutputDirectory>
-              <sourceDirectory>src/main/java</sourceDirectory>
+              <sourceDirectory>src/main/kotlin</sourceDirectory>
               <outputDirectory>${project.build.directory}/delombok</outputDirectory>
             </configuration>
           </execution>
