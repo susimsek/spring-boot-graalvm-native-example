@@ -14,7 +14,7 @@ class HelloService {
      *
      * @return a `GreetingDTO` containing the message.
      */
-    fun getGreeting(): GreetingDTO {
+    suspend fun getGreeting(): GreetingDTO {
         return GreetingDTO(message = "Hello, GraalVM Native Image!")
     }
 }

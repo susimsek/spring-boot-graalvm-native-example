@@ -2,6 +2,7 @@ package io.github.susimsek.springbootgraalvmnativeexample.controller
 
 import io.github.susimsek.springbootgraalvmnativeexample.dto.GreetingDTO
 import io.github.susimsek.springbootgraalvmnativeexample.service.HelloService
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,13 +21,15 @@ class HelloControllerTest {
 
   @Test
   fun `should return greeting message`() {
-    `when`(helloService.getGreeting()).thenReturn(GreetingDTO(message = "Hello, GraalVM Native Image!"))
+    runBlocking {
+      `when`(helloService.getGreeting()).thenReturn(GreetingDTO(message = "Hello, GraalVM Native Image!"))
 
-    webTestClient.get()
-      .uri("/api/v1/hello")
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.message").isEqualTo("Hello, GraalVM Native Image!")
+      webTestClient.get()
+        .uri("/api/v1/hello")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.message").isEqualTo("Hello, GraalVM Native Image!")
+    }
   }
 }
