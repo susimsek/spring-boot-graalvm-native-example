@@ -21,7 +21,7 @@ Explore high-speed application startup, reduced memory footprint, and seamless i
 - 🕵️‍♂️ [Code Analysis](#️-code-analysis)
 - 🛡️ [Code Quality](#️-code-quality)
 - 📜 [API Documentation](#-api-documentation)
-- 📚 [Java Documentation](#-java-documentation)
+- 📚 [Code Documentation](#-java-documentation)
 - 🐳 [Docker](#-docker)
 - 🚀 [Deployment](#-deployment)
 - 🛠️ [Used Technologies](#️-used-technologies)
@@ -119,14 +119,22 @@ To build the application for production with GraalVM Native Image:
    ```bash
    upx --ultra-brute --lzma target/native-executable
    ```
-   
+
 ## 🕵️ Code Analysis
 
-To check the Java code style using Checkstyle, execute:
+To check the code style for both Java and Kotlin, execute the following commands:
 
+#### Java Code Style
 ```bash
 mvn checkstyle:check
 ```
+This will analyze the Java code style using Checkstyle.
+
+#### Kotlin Code Style
+```bash
+mvn detekt:check -Ddetekt.config=detekt.yml
+```
+This will analyze the Kotlin code style using Detekt.
 
 ## 🛡️ Code Quality
 
@@ -142,27 +150,40 @@ To view the API documentation, access the Swagger UI at:
 
 http://localhost:8080/swagger-ui.html
 
-## 📚 Java Documentation
+## 📚 Code Documentation
 
-To generate and view the Java documentation for this project:
+To generate and view the Java and Kotlin documentation for this project:
 
-### Generate JavaDocs
+### Generate Documentation
 
-Run the following Maven command to generate the documentation:
+Run the following Maven commands to generate the documentation:
 
+#### Java Documentation
 ```bash
 mvn javadoc:javadoc
 ```
+The generated Java documentation can be found under the `target/reports/apidocs` directory.
 
-The generated documentation can be found under the `target/reports/apidocs` directory.
+#### Kotlin Documentation
+```bash
+mvn dokka:dokka
+```
+The generated Kotlin documentation can be found under the `target/dokka` directory.
 
-### Open JavaDocs
+### Open Documentation
 
-To view the documentation, open the following file in your browser:
+To view the documentation, open the following files in your browser:
 
+#### Java Documentation
 ```text
 target/reports/apidocs/index.html
 ```
+
+#### Kotlin Documentation
+```text
+target/dokka/index.html
+```
+
 
 ## 🐳 Docker
 
@@ -215,15 +236,18 @@ helm uninstall graalvm-native-app
 ## 🛠️ Used Technologies
 
 ![Java](https://img.shields.io/badge/Java-21-blue?logo=openjdk&logoColor=white)  
+![Kotlin](https://img.shields.io/badge/Kotlin-2.1.0-7F52FF?logo=kotlin&logoColor=white)  
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4.1-green?logo=spring&logoColor=white)  
 ![GraalVM](https://img.shields.io/badge/GraalVM-Native_Image-FF8C00?logo=graalvm&logoColor=white)  
 ![Spring Boot WebFlux](https://img.shields.io/badge/Spring_Boot_WebFlux-Reactive_Programming-6DB33F?logo=spring&logoColor=white)  
 ![Spring Boot Actuator](https://img.shields.io/badge/Spring_Boot_Actuator-Monitoring-green?logo=spring&logoColor=white)  
 ![Checkstyle](https://img.shields.io/badge/Checkstyle-Code_Analysis-orange?logo=openjdk&logoColor=white)  
+![Detekt](https://img.shields.io/badge/Detekt-Code_Analysis-orange?logo=kotlin&logoColor=white)  
 ![Lombok](https://img.shields.io/badge/Lombok-Boilerplate_Code_Reduction-orange?logo=openjdk&logoColor=white)  
 ![Maven](https://img.shields.io/badge/Maven-Build_Automation-C71A36?logo=apachemaven&logoColor=white)  
 ![Springdoc](https://img.shields.io/badge/Springdoc-API_Documentation-6DB33F?logo=spring&logoColor=white)    
-![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-007396?logo=apachemaven&logoColor=white)   
+![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-007396?logo=openjdk&logoColor=white)   
+![Dokka](https://img.shields.io/badge/Dokka-Documentation-007396?logo=kotlin&logoColor=white)  
 ![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?logo=sonarqube&logoColor=white)  
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)  
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)  

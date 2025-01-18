@@ -137,3 +137,15 @@ docker-logs/
 # SonarQube
 ######################
 sonar-project.properties
+
+######################
+# Detekt
+######################
+# Detekt configuration files
+**/detekt.yml
+
+######################
+# Dokka
+######################
+# Dokka generated files
+packages.md
