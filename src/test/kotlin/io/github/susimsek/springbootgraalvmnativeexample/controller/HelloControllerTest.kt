@@ -13,28 +13,28 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @WebFluxTest(HelloController::class)
 class HelloControllerTest {
 
-  @Autowired
-  private lateinit var webTestClient: WebTestClient
+    @Autowired
+    private lateinit var webTestClient: WebTestClient
 
-  @MockitoBean
-  private lateinit var helloService: HelloService
+    @MockitoBean
+    private lateinit var helloService: HelloService
 
-  @Test
-  fun `should return greeting message`() {
-    runBlocking {
-      // Arrange
-      val expectedMessage = "Hello, GraalVM Native Image!"
-      `when`(helloService.getGreeting()).thenReturn(GreetingDTO(message = expectedMessage))
+    @Test
+    fun `should return greeting message`() {
+        runBlocking {
+            // Arrange
+            val expectedMessage = "Hello, GraalVM Native Image!"
+            `when`(helloService.getGreeting()).thenReturn(GreetingDTO(message = expectedMessage))
 
-      // Act
-      val responseSpec = webTestClient.get()
-        .uri("/api/v1/hello")
-        .exchange()
+            // Act
+            val responseSpec = webTestClient.get()
+                .uri("/api/v1/hello")
+                .exchange()
 
-      // Assert
-      responseSpec.expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.message").isEqualTo(expectedMessage)
+            // Assert
+            responseSpec.expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.message").isEqualTo(expectedMessage)
+        }
     }
-  }
 }

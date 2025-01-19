@@ -26,7 +26,7 @@ Data transfer objects for rest mapping.
 
 Service layer.
 
-# Package io.github.susimsek.springbootgraalvmnativeexample.mapper
+# Package io.github.susimsek.springbootgraalvmnativeexample.exception
 
-Data transfer objects mappers.
+Rest layer exception handling.
 

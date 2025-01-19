@@ -19,30 +19,30 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1")
 @Tag(name = "hello", description = "Endpoints for Hello World operations")
 class HelloController(
-  private val helloService: HelloService
+    private val helloService: HelloService
 ) {
 
-  /**
-   * `GET /hello` : Returns a greeting message wrapped in a DTO.
-   *
-   * @return the greeting message as a `GreetingDTO`.
-   */
-  @Operation(
-    summary = "Say Hello",
-    description = "Returns a greeting message wrapped in a DTO."
-  )
-  @ApiResponse(
-    responseCode = "200",
-    description = "Successful operation",
-    content = [
-      Content(
-        mediaType = MediaType.APPLICATION_JSON_VALUE,
-        schema = Schema(implementation = GreetingDTO::class)
-      )
-    ]
-  )
-  @GetMapping("/hello", produces = [MediaType.APPLICATION_JSON_VALUE])
-  suspend fun sayHello(): GreetingDTO {
-    return helloService.getGreeting()
-  }
+    /**
+     * `GET /hello` : Returns a greeting message wrapped in a DTO.
+     *
+     * @return the greeting message as a `GreetingDTO`.
+     */
+    @Operation(
+        summary = "Say Hello",
+        description = "Returns a greeting message wrapped in a DTO."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successful operation",
+        content = [
+            Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = Schema(implementation = GreetingDTO::class)
+            )
+        ]
+    )
+    @GetMapping("/hello", produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun sayHello(): GreetingDTO {
+        return helloService.getGreeting()
+    }
 }

@@ -7,7 +7,7 @@ spring:
     allow-bean-definition-overriding: true
   jmx:
     enabled: false
-  mvc:
+  webflux:
     problemdetails:
       enabled: true
   web:
