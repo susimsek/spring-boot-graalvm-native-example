@@ -1,8 +1,13 @@
 package io.github.susimsek.springbootgraalvmnativeexample.exception
 
 import io.github.susimsek.springbootgraalvmnativeexample.dto.Violation
+import jakarta.validation.ConstraintViolation
+import jakarta.validation.ConstraintViolationException
+import jakarta.validation.Path
+import jakarta.validation.constraints.NotNull
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.core.MethodParameter
@@ -62,6 +67,15 @@ class CoResponseEntityExceptionHandlerTest {
       exchange: ServerWebExchange
     ): ResponseEntity<Any> {
       return handleWebExchangeBindException(ex, headers, status, exchange)
+    }
+
+    suspend fun testHandleConstraintViolationException(
+      ex: ConstraintViolationException,
+      headers: HttpHeaders,
+      status: HttpStatus,
+      exchange: ServerWebExchange
+    ): ResponseEntity<Any> {
+      return handleConstraintViolationException(ex, headers, status, exchange)
     }
 
     suspend fun testHandleServerWebInputException(

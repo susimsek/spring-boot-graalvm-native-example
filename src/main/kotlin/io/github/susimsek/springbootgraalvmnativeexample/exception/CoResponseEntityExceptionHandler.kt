@@ -1,6 +1,7 @@
 package io.github.susimsek.springbootgraalvmnativeexample.exception
 
 import io.github.susimsek.springbootgraalvmnativeexample.dto.Violation
+import jakarta.validation.ConstraintViolationException
 import org.springframework.context.MessageSource
 import org.springframework.context.MessageSourceAware
 import org.springframework.http.HttpHeaders
@@ -57,7 +58,8 @@ abstract class CoResponseEntityExceptionHandler : MessageSourceAware {
         WebExchangeBindException::class,
         ServerWebInputException::class,
         ServerErrorException::class,
-        ResponseStatusException::class
+        ResponseStatusException::class,
+        ConstraintViolationException::class
     )
     suspend fun handleException(ex: Exception, exchange: ServerWebExchange): ResponseEntity<Any> {
         return when (ex) {
@@ -67,42 +69,56 @@ abstract class CoResponseEntityExceptionHandler : MessageSourceAware {
                 ex.statusCode,
                 exchange
             )
+
             is NotAcceptableStatusException -> handleNotAcceptableStatusException(
                 ex,
                 ex.headers,
                 ex.statusCode,
                 exchange
             )
+
             is UnsupportedMediaTypeStatusException -> handleUnsupportedMediaTypeStatusException(
                 ex,
                 ex.headers,
                 ex.statusCode,
                 exchange
             )
+
             is WebExchangeBindException -> handleWebExchangeBindException(
                 ex,
                 ex.headers,
                 ex.statusCode,
                 exchange
             )
+
+            is ConstraintViolationException -> handleConstraintViolationException(
+                ex,
+                HttpHeaders(),
+                HttpStatus.BAD_REQUEST,
+                exchange
+            )
+
             is ServerWebInputException -> handleServerWebInputException(
                 ex,
                 ex.headers,
                 ex.statusCode,
                 exchange
             )
+
             is ServerErrorException -> handleServerErrorException(
                 ex,
                 ex.headers,
                 ex.statusCode,
                 exchange
             )
+
             is ResponseStatusException -> handleResponseStatusException(
                 ex,
                 ex.headers,
                 ex.statusCode,
                 exchange
             )
+
             else -> createDefaultErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, exchange)
         }
     }
@@ -189,6 +205,26 @@ abstract class CoResponseEntityExceptionHandler : MessageSourceAware {
         exchange: ServerWebExchange
     ): ResponseEntity<Any> {
         val violations = ex.fieldErrors.map { Violation(it) } + ex.globalErrors.map { Violation(it) }
+        val problemDetail = createProblemDetail(
+            status = HttpStatus.BAD_REQUEST,
+            detail = "Validation error occurred.",
+            errorCode = "invalid_request"
+        ).apply {
+            setProperty("violations", violations)
+        }
+        return ResponseEntity(problemDetail as Any, headers, status)
+    }
+
+    /**
+     * Handles [ConstraintViolationException].
+     */
+    protected open suspend fun handleConstraintViolationException(
+        ex: ConstraintViolationException,
+        headers: HttpHeaders,
+        status: HttpStatusCode,
+        exchange: ServerWebExchange
+    ): ResponseEntity<Any> {
+        val violations = ex.constraintViolations.map { Violation(it) }
         val problemDetail = createProblemDetail(
             status = HttpStatus.BAD_REQUEST,
             detail = "Validation error occurred.",
