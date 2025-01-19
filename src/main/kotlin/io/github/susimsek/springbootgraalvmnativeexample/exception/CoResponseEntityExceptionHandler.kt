@@ -18,6 +18,7 @@ import org.springframework.web.server.ServerErrorException
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.ServerWebInputException
 import org.springframework.web.server.UnsupportedMediaTypeStatusException
+import java.net.SocketTimeoutException
 
 /**
  * Base class for handling global exceptions in a Spring WebFlux application.
@@ -59,7 +60,9 @@ abstract class CoResponseEntityExceptionHandler : MessageSourceAware {
         ServerWebInputException::class,
         ServerErrorException::class,
         ResponseStatusException::class,
-        ConstraintViolationException::class
+        ConstraintViolationException::class,
+        SocketTimeoutException::class,
+        UnsupportedOperationException::class
     )
     suspend fun handleException(ex: Exception, exchange: ServerWebExchange): ResponseEntity<Any> {
         return when (ex) {
@@ -116,6 +119,20 @@ abstract class CoResponseEntityExceptionHandler : MessageSourceAware {
                 ex,
                 ex.headers,
                 ex.statusCode,
+                exchange
+            )
+
+            is SocketTimeoutException -> handleSocketTimeoutException(
+                ex,
+                HttpHeaders(),
+                HttpStatus.GATEWAY_TIMEOUT,
+                exchange
+            )
+
+            is UnsupportedOperationException -> handleUnsupportedOperationException(
+                ex,
+                HttpHeaders(),
+                HttpStatus.NOT_IMPLEMENTED,
                 exchange
             )
 
@@ -296,5 +313,39 @@ abstract class CoResponseEntityExceptionHandler : MessageSourceAware {
         return ProblemDetail.forStatusAndDetail(status, detail).apply {
             setProperty("error", errorCode)
         }
+    }
+
+    /**
+     * Handles [SocketTimeoutException].
+     */
+    protected open suspend fun handleSocketTimeoutException(
+        ex: SocketTimeoutException,
+        headers: HttpHeaders,
+        status: HttpStatusCode,
+        exchange: ServerWebExchange
+    ): ResponseEntity<Any> {
+        val problemDetail = createProblemDetail(
+            status = HttpStatus.GATEWAY_TIMEOUT,
+            detail = "The service request timed out. Please try again later.",
+            errorCode = "gateway_timeout"
+        )
+        return ResponseEntity(problemDetail as Any, headers, status)
+    }
+
+    /**
+     * Handles [UnsupportedOperationException].
+     */
+    protected open suspend fun handleUnsupportedOperationException(
+        ex: UnsupportedOperationException,
+        headers: HttpHeaders,
+        status: HttpStatusCode,
+        exchange: ServerWebExchange
+    ): ResponseEntity<Any> {
+        val problemDetail = createProblemDetail(
+            status = HttpStatus.NOT_IMPLEMENTED,
+            detail = "The requested operation is not supported. Please check the documentation and try again.",
+            errorCode = "unsupported_operation"
+        )
+        return ResponseEntity(problemDetail as Any, headers, status)
     }
 }
