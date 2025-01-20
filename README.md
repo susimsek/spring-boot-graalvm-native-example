@@ -3,7 +3,7 @@
 ![Build Status](https://github.com/susimsek/spring-boot-graalvm-native-example/actions/workflows/deploy.yml/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=spring-boot-graalvm-native-example&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=spring-boot-graalvm-native-example)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=spring-boot-graalvm-native-example&metric=coverage)](https://sonarcloud.io/summary/new_code?id=spring-boot-graalvm-native-example)
-![Language](https://img.shields.io/badge/Language-Java-brightgreen)
+![Language](https://img.shields.io/badge/Language-Kotlin-brightgreen)
 ![Framework](https://img.shields.io/badge/Framework-Spring%20Boot-brightgreen)
 
 Welcome to **Spring Boot GraalVM Native Example** – a lightweight and high-performance application built using Spring Boot and GraalVM Native Image.
@@ -234,7 +234,6 @@ helm uninstall graalvm-native-app
 ```
 
 ## 🛠️ Used Technologies
-
 ![Java](https://img.shields.io/badge/Java-21-blue?logo=openjdk&logoColor=white)  
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.1.0-7F52FF?logo=kotlin&logoColor=white)  
 ![Maven](https://img.shields.io/badge/Maven-Build_Automation-C71A36?logo=apachemaven&logoColor=white)  
@@ -244,7 +243,8 @@ helm uninstall graalvm-native-app
 ![Spring Boot Actuator](https://img.shields.io/badge/Spring_Boot_Actuator-Monitoring-green?logo=spring&logoColor=white)  
 ![Checkstyle](https://img.shields.io/badge/Checkstyle-Code_Analysis-orange?logo=openjdk&logoColor=white)  
 ![Detekt](https://img.shields.io/badge/Detekt-Code_Analysis-orange?logo=kotlin&logoColor=white)  
-![Lombok](https://img.shields.io/badge/Lombok-Boilerplate_Code_Reduction-007396?logo=openjdk&logoColor=white)   
+![Lombok](https://img.shields.io/badge/Lombok-Boilerplate_Code_Reduction-007396?logo=openjdk&logoColor=white)  
+![MapStruct](https://img.shields.io/badge/MapStruct-Efficient_Object_Mapping-009C89?logo=openjdk&logoColor=white)  
 ![Springdoc](https://img.shields.io/badge/Springdoc-API_Documentation-6DB33F?logo=spring&logoColor=white)  
 ![Caffeine](https://img.shields.io/badge/Caffeine-High_Performance_Cache-C71A36?logo=openjdk&logoColor=white)  
 ![Javadoc](https://img.shields.io/badge/Javadoc-Documentation-007396?logo=openjdk&logoColor=white)   
@@ -257,3 +257,4 @@ helm uninstall graalvm-native-app
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple?logo=bootstrap&logoColor=white)    
 ![Font Awesome](https://img.shields.io/badge/Font_Awesome-6.0-339AF0?logo=fontawesome&logoColor=white)  
 ![WebJars Locator Lite](https://img.shields.io/badge/WebJars_Locator_Lite-Dynamic_Asset_Locator-007396?logo=java&logoColor=white)
+
