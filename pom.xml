@@ -576,6 +576,8 @@
               <requiredVersion>22.3</requiredVersion>
               <imageName>${native-image-name}</imageName>
               <buildArgs>
+                <buildArg>--no-fallback</buildArg>
+                <buildArg>-march=native</buildArg>
                 <buildArg>${native-build-args}</buildArg>
               </buildArgs>
             </configuration>
