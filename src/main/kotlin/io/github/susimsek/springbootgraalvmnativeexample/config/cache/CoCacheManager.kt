@@ -1,7 +1,9 @@
 package io.github.susimsek.springbootgraalvmnativeexample.config.cache
 
 import com.github.benmanes.caffeine.cache.AsyncCache
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withContext
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -37,13 +39,17 @@ open class CoCacheManager<K, V>(
      * @param key the key whose mapping is to be removed from the cache
      */
     override suspend fun evict(key: K) {
-        cache.synchronous().invalidate(key)
+        withContext(Dispatchers.IO) {
+            cache.synchronous().invalidate(key)
+        }
     }
 
     /**
      * Clears all entries from the cache.
      */
     override suspend fun clear() {
-        cache.synchronous().invalidateAll()
+        withContext(Dispatchers.IO) {
+            cache.synchronous().invalidateAll()
+        }
     }
 }
