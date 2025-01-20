@@ -3,6 +3,7 @@
 ![Build Status](https://github.com/susimsek/spring-boot-graalvm-native-example/actions/workflows/deploy.yml/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=spring-boot-graalvm-native-example&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=spring-boot-graalvm-native-example)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=spring-boot-graalvm-native-example&metric=coverage)](https://sonarcloud.io/summary/new_code?id=spring-boot-graalvm-native-example)
+![Language](https://img.shields.io/badge/Language-Java-brightgreen)
 ![Language](https://img.shields.io/badge/Language-Kotlin-brightgreen)
 ![Framework](https://img.shields.io/badge/Framework-Spring%20Boot-brightgreen)
 
