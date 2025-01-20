@@ -11,6 +11,11 @@ server:
 spring:
   messages:
     cache-duration: 1h
+  cache:
+    default-config:
+      ttl: 1h
+      initial-capacity: 5000
+      maximum-size: 10000
 
 logging:
   level:

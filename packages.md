@@ -18,6 +18,10 @@ Application configuration.
 
 API documentation configuration.
 
+# Package io.github.susimsek.springbootgraalvmnativeexample.config.cache
+
+Application cache configuration.
+
 # Package io.github.susimsek.springbootgraalvmnativeexample.dto
 
 Data transfer objects for rest mapping.

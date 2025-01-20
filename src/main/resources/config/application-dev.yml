@@ -11,6 +11,11 @@ spring:
       port: 35729
   messages:
     cache-duration: 1h
+  cache:
+    default-config:
+      ttl: 1h
+      initial-capacity: 5000
+      maximum-size: 10000
 
 logging:
   level:

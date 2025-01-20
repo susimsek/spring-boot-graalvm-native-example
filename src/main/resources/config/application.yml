@@ -25,6 +25,9 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
     default-property-inclusion: non_null
+  cache:
+    cache-names:
+      - greetingCache
 
 management:
   metrics:
