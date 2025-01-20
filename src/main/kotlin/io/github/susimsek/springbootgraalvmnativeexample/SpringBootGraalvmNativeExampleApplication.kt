@@ -1,7 +1,9 @@
 package io.github.susimsek.springbootgraalvmnativeexample
 
+import io.github.susimsek.springbootgraalvmnativeexample.config.NativeConfig
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.ImportRuntimeHints
 
 /**
  * Entry point for the application.
@@ -12,6 +14,7 @@ import org.springframework.boot.runApplication
  * component scanning, and additional Spring Boot configuration.</p>
  */
 @SpringBootApplication
+@ImportRuntimeHints(NativeConfig.AppNativeRuntimeHints::class)
 class SpringBootGraalvmNativeExampleApplication
 
 /**
