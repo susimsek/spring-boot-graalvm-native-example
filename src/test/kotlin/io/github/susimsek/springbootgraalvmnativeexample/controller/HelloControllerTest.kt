@@ -20,21 +20,19 @@ class HelloControllerTest {
     private lateinit var helloService: HelloService
 
     @Test
-    fun `should return greeting message`() {
-        runBlocking {
-            // Arrange
-            val expectedMessage = "Hello, GraalVM Native Image!"
-            `when`(helloService.getGreeting()).thenReturn(GreetingDTO(message = expectedMessage))
+    fun `should return greeting message`(): Unit = runBlocking {
+        // Arrange
+        val expectedMessage = "Hello, GraalVM Native Image!"
+        `when`(helloService.getGreeting()).thenReturn(GreetingDTO(message = expectedMessage))
 
-            // Act
-            val responseSpec = webTestClient.get()
-                .uri("/api/v1/hello")
-                .exchange()
+        // Act
+        val responseSpec = webTestClient.get()
+            .uri("/api/v1/hello")
+            .exchange()
 
-            // Assert
-            responseSpec.expectStatus().isOk
-                .expectBody()
-                .jsonPath("$.message").isEqualTo(expectedMessage)
-        }
+        // Assert
+        responseSpec.expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.message").isEqualTo(expectedMessage)
     }
 }
