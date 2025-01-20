@@ -3,7 +3,6 @@ package io.github.susimsek.springbootgraalvmnativeexample.service
 import io.github.susimsek.springbootgraalvmnativeexample.config.cache.CoCacheManager
 import io.github.susimsek.springbootgraalvmnativeexample.dto.GreetingDTO
 import io.github.susimsek.springbootgraalvmnativeexample.mapper.HelloMapper
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 /**
@@ -14,8 +13,6 @@ class HelloService(
     private val helloMapper: HelloMapper,
     private val helloCacheService: CoCacheManager<String, GreetingDTO>
 ) {
-
-    private val logger = LoggerFactory.getLogger(HelloService::class.java)
     private val cacheKey = "greeting"
 
     /**
@@ -28,11 +25,8 @@ class HelloService(
         val cachedGreeting: GreetingDTO? = helloCacheService.get(cacheKey)
 
         if (cachedGreeting != null) {
-            logger.debug("Cache HIT - Key: '{}'", cacheKey)
             return cachedGreeting
         }
-
-        logger.debug("Cache MISS - Key: '{}', generating new greeting message.", cacheKey)
 
         val newGreeting = helloMapper.toGreetingDTO("Hello, GraalVM Native Image!")
 
