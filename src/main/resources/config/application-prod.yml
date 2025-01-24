@@ -16,6 +16,9 @@ spring:
       ttl: 1h
       initial-capacity: 5000
       maximum-size: 10000
+  webclient:
+    connect-timeout: 5s
+    read-timeout: 10s
 
 logging:
   level:

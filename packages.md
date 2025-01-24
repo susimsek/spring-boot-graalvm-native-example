@@ -22,6 +22,10 @@ API documentation configuration.
 
 Application cache configuration.
 
+# Package io.github.susimsek.springbootgraalvmnativeexample.config.client
+
+Client configuration.
+
 # Package io.github.susimsek.springbootgraalvmnativeexample.dto
 
 Data transfer objects for rest mapping.
@@ -33,4 +37,8 @@ Service layer.
 # Package io.github.susimsek.springbootgraalvmnativeexample.exception
 
 Rest layer exception handling.
+
+# Package io.github.susimsek.springbootgraalvmnativeexample.utils
+
+Utility classes and helper functions.
 
