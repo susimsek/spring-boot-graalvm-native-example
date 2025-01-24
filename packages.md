@@ -42,3 +42,7 @@ Rest layer exception handling.
 
 Utility classes and helper functions.
 
+# Package io.github.susimsek.springbootgraalvmnativeexample.client
+
+Client layer.
+

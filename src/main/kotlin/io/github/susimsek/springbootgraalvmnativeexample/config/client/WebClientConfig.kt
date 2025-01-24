@@ -1,5 +1,6 @@
 package io.github.susimsek.springbootgraalvmnativeexample.config.client
 
+import io.github.susimsek.springbootgraalvmnativeexample.client.TodoClient
 import io.netty.channel.ChannelOption
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
@@ -10,6 +11,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.support.WebClientAdapter
+import org.springframework.web.service.invoker.HttpServiceProxyFactory
 import reactor.netty.http.client.HttpClient
 
 @Configuration(proxyBeanMethods = false)
@@ -34,5 +37,17 @@ class WebClientConfig(
         customizerProvider.orderedStream().forEach { customizer -> customizer.customize(builder) }
 
         return builder
+    }
+
+    @Bean
+    fun todoClient(webClientBuilder: WebClient.Builder): TodoClient {
+        val todoClientConfig = webClientProperties.clients["todoClient"]
+            ?: error("todoClient configuration is missing")
+        val webClient = webClientBuilder.baseUrl(
+            todoClientConfig.url
+        ).build()
+        val factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient))
+            .build()
+        return factory.createClient(TodoClient::class.java)
     }
 }

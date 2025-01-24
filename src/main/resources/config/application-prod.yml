@@ -19,6 +19,9 @@ spring:
   webclient:
     connect-timeout: 5s
     read-timeout: 10s
+    clients:
+      todoClient:
+        url: https://jsonplaceholder.typicode.com
 
 logging:
   level:

@@ -10,6 +10,6 @@ data class WebClientProperties(
     var clients: MutableMap<String, ClientConfig> = HashMap()
 ) {
     data class ClientConfig(
-        var url: String? = null
+        var url: String
     )
 }
