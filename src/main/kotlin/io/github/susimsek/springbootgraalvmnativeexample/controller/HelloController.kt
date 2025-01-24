@@ -23,7 +23,7 @@ class HelloController(
 ) {
 
     /**
-     * `GET /hello` : Returns a greeting message wrapped in a DTO.
+     * `GET /hello` : Returns a greeting message.
      *
      * @return the greeting message as a `GreetingDTO`.
      */

@@ -27,7 +27,7 @@ class TodoController(
     /**
      * GET /todos : Returns a list of todos.
      *
-     * @return the list of todos as TodoDTO.
+     * @return a Flow stream of [TodoDTO] representing the todo items.
      */
     @Operation(
         summary = "Get Todos",
@@ -39,7 +39,7 @@ class TodoController(
         content = [
             Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
-              array = ArraySchema(schema = Schema(implementation = TodoDTO::class))
+                array = ArraySchema(schema = Schema(implementation = TodoDTO::class))
             )
         ]
     )
