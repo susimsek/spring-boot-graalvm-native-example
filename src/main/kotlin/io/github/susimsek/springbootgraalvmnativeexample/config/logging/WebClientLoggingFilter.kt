@@ -1,5 +1,6 @@
 package io.github.susimsek.springbootgraalvmnativeexample.config.logging
 
+import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.HttpLogLevel
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.HttpLogType
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.Source
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.formatter.LogFormatter
@@ -19,55 +20,77 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.nio.charset.StandardCharsets
 
-class WebClientLoggingFilter(private val logFormatter: LogFormatter) : ExchangeFilterFunction {
+class WebClientLoggingFilter(
+    private val logFormatter: LogFormatter,
+    private val httpLogLevel: HttpLogLevel = HttpLogLevel.FULL
+) : ExchangeFilterFunction {
 
     private val logger = LoggerFactory.getLogger(WebClientLoggingFilter::class.java)
 
-    override fun filter(request: ClientRequest, next: ExchangeFunction) = mono {
-        coFilter(request, next)
+    override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
+        if (httpLogLevel == HttpLogLevel.NONE) {
+            return next.exchange(request)
+        }
+        return mono {
+            coFilter(request, next)
+        }
     }
 
-    private suspend fun coFilter(request: ClientRequest, next: ExchangeFunction): ClientResponse {
+    private suspend fun coFilter(
+        request: ClientRequest,
+        next: ExchangeFunction
+    ): ClientResponse {
         val stopWatch = StopWatch()
         var requestBody: ByteArray? = null
         var responseBody: ByteArray? = null
         stopWatch.start()
-        return next
-            .exchange(
-                ClientRequest
-                    .from(request)
-                    .body { outputMessage, context ->
-                        BufferingClientHttpRequest(outputMessage).let { bufferingRequest ->
-                            request.body().insert(bufferingRequest, context)
-                                .doOnSuccess {
-                                    requestBody = bufferingRequest.requestBody
-                                }
-                        }
+
+        val processedRequest = if (httpLogLevel == HttpLogLevel.FULL) {
+            ClientRequest.from(request)
+                .body { outputMessage, context ->
+                    BufferingClientHttpRequest(outputMessage).let { bufferingRequest ->
+                        request.body().insert(bufferingRequest, context)
+                            .doOnSuccess {
+                                requestBody = bufferingRequest.requestBody
+                            }
                     }
-                    .build()
-            )
+                }
+                .build()
+        } else {
+            request
+        }
+
+        return next
+            .exchange(processedRequest)
             .flatMap { response ->
                 stopWatch.stop()
                 val durationMs = stopWatch.totalTimeMillis
+
                 logRequest(
                     request,
                     requestBody?.let { String(it, StandardCharsets.UTF_8) } ?: "",
                 )
+
                 val clientResponse = response.mutate().build()
+
                 Mono.just(response)
                     .flatMap {
-                        val responseHeaders = response.headers().asHttpHeaders()
-                        if (responseHeaders.contentLength > 0 ||
-                            responseHeaders.containsKey(HttpHeaders.TRANSFER_ENCODING)
-                        ) {
-                            response.bodyToMono(ByteArray::class.java)
-                                .doOnNext { responseBody = it }
-                                .map { b ->
-                                    response.mutate().body(
-                                        Flux.just(DefaultDataBufferFactory.sharedInstance.wrap(b))
-                                    ).build()
-                                }
-                                .switchIfEmpty(Mono.just(response))
+                        if (httpLogLevel == HttpLogLevel.FULL) {
+                            val responseHeaders = response.headers().asHttpHeaders()
+                            if (responseHeaders.contentLength > 0 ||
+                                responseHeaders.containsKey(HttpHeaders.TRANSFER_ENCODING)
+                            ) {
+                                response.bodyToMono(ByteArray::class.java)
+                                    .doOnNext { responseBody = it }
+                                    .map { b ->
+                                        response.mutate().body(
+                                            Flux.just(DefaultDataBufferFactory.sharedInstance.wrap(b))
+                                        ).build()
+                                    }
+                                    .switchIfEmpty(Mono.just(response))
+                            } else {
+                                Mono.just(response)
+                            }
                         } else {
                             Mono.just(response)
                         }
@@ -76,7 +99,14 @@ class WebClientLoggingFilter(private val logFormatter: LogFormatter) : ExchangeF
                         logResponse(
                             clientResponse,
                             request,
-                            responseBody?.let { String(it, StandardCharsets.UTF_8) } ?: "",
+                            if (isHttpLogLevel(
+                                    HttpLogLevel.FULL
+                                )
+                            ) {
+                                responseBody?.let { String(it, StandardCharsets.UTF_8) } ?: ""
+                            } else {
+                                ""
+                            },
                             durationMs
                         )
                     }
@@ -89,7 +119,7 @@ class WebClientLoggingFilter(private val logFormatter: LogFormatter) : ExchangeF
             method = request.method(),
             uri = request.url(),
             statusCode = null,
-            headers = request.headers(),
+            headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) request.headers() else null,
             body = body,
             source = Source.CLIENT,
             durationMs = null
@@ -103,11 +133,15 @@ class WebClientLoggingFilter(private val logFormatter: LogFormatter) : ExchangeF
             method = request.method(),
             uri = request.url(),
             statusCode = response.statusCode().value(),
-            headers = response.headers().asHttpHeaders(),
+            headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) response.headers().asHttpHeaders() else null,
             body = body,
             source = Source.CLIENT,
             durationMs = durationMs
         )
         logger.info("HTTP Response: {}", logFormatter.format(logBuilder))
+    }
+
+    private fun isHttpLogLevel(level: HttpLogLevel): Boolean {
+        return httpLogLevel.ordinal >= level.ordinal
     }
 }

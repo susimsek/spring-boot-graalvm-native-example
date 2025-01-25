@@ -21,7 +21,7 @@ class JsonLogFormatter(private val objectMapper: ObjectMapper) : LogFormatter {
 
         httpLog.durationMs?.let { logNode.put("duration", "${it}ms") }
         httpLog.statusCode?.let { logNode.put("statusCode", it) }
-        httpLog.headers.let { logNode.set<JsonNode>("headers", parseHeaders(it!!)) }
+        httpLog.headers?.let { logNode.set<JsonNode>("headers", parseHeaders(it)) }
 
         if (StringUtils.hasText(httpLog.body)) {
             logNode.set<JsonNode>("body", parseBody(httpLog.body!!))
