@@ -1,7 +1,7 @@
 package io.github.susimsek.springbootgraalvmnativeexample.config.client
 
 import io.github.susimsek.springbootgraalvmnativeexample.client.TodoClient
-import io.github.susimsek.springbootgraalvmnativeexample.config.logging.WebClientLoggingFilter
+import io.github.susimsek.springbootgraalvmnativeexample.config.logging.filter.WebClientLoggingFilter
 import io.netty.channel.ChannelOption
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.config.ConfigurableBeanFactory

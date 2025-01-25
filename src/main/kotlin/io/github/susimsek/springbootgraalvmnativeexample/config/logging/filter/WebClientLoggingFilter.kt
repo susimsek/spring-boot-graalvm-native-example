@@ -1,4 +1,4 @@
-package io.github.susimsek.springbootgraalvmnativeexample.config.logging
+package io.github.susimsek.springbootgraalvmnativeexample.config.logging.filter
 
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.HttpLogLevel
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.HttpLogType
