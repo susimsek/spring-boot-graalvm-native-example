@@ -1,6 +1,7 @@
 package io.github.susimsek.springbootgraalvmnativeexample.config.client
 
 import io.github.susimsek.springbootgraalvmnativeexample.client.TodoClient
+import io.github.susimsek.springbootgraalvmnativeexample.config.logging.WebClientLoggingFilter
 import io.netty.channel.ChannelOption
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
@@ -23,7 +24,10 @@ class WebClientConfig(
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    fun webClientBuilder(customizerProvider: ObjectProvider<WebClientCustomizer>): WebClient.Builder {
+    fun webClientBuilder(
+        customizerProvider: ObjectProvider<WebClientCustomizer>,
+        webClientLoggingFilter: WebClientLoggingFilter
+    ): WebClient.Builder {
         val httpClient = HttpClient.create()
             .responseTimeout(webClientProperties.readTimeout)
             .option(
@@ -33,6 +37,7 @@ class WebClientConfig(
 
         val builder = WebClient.builder()
             .clientConnector(ReactorClientHttpConnector(httpClient))
+            .filter(webClientLoggingFilter)
 
         customizerProvider.orderedStream().forEach { customizer -> customizer.customize(builder) }
 

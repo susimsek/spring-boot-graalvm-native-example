@@ -1,6 +1,7 @@
 package io.github.susimsek.springbootgraalvmnativeexample.service
 
 import io.github.susimsek.springbootgraalvmnativeexample.client.TodoClient
+import io.github.susimsek.springbootgraalvmnativeexample.dto.GreetingDTO
 import io.github.susimsek.springbootgraalvmnativeexample.dto.TodoDTO
 import io.github.susimsek.springbootgraalvmnativeexample.exception.ResourceNotFoundException
 import kotlinx.coroutines.flow.Flow
