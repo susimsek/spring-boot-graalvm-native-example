@@ -11,6 +11,7 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.util.StopWatch
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ClientResponse
@@ -26,14 +27,43 @@ class WebClientLoggingFilter(
 ) : ExchangeFilterFunction {
 
     private val logger = LoggerFactory.getLogger(WebClientLoggingFilter::class.java)
+    private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
 
     override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
-        if (httpLogLevel == HttpLogLevel.NONE) {
+        if (httpLogLevel == HttpLogLevel.NONE || shouldNotLog(request)) {
             return next.exchange(request)
         }
         return mono {
             coFilter(request, next)
         }
+    }
+
+    fun shouldNotLog(method: HttpMethod?, vararg patterns: String): WebClientLoggingFilter {
+        patterns.forEach { pattern ->
+            shouldNotLogPatterns.add(Pair(method, pattern))
+        }
+        return this
+    }
+
+    fun shouldNotLog(vararg patterns: String): WebClientLoggingFilter {
+        return shouldNotLog(null, *patterns)
+    }
+
+    fun shouldNotLog(method: HttpMethod): WebClientLoggingFilter {
+        return shouldNotLog(method, "/**")
+    }
+
+    private fun shouldNotLog(request: ClientRequest): Boolean {
+      val requestPath = request.url().path
+      val requestMethod = request.method()
+        return shouldNotLogPatterns.any { (method, pattern) ->
+            (method == null || method == requestMethod) && pathMatches(requestPath, pattern)
+        }
+    }
+
+    private fun pathMatches(requestPath: String, pattern: String): Boolean {
+        val regexPattern = pattern.replace("**", ".*").replace("*", "[^/]*").toRegex()
+        return regexPattern.matches(requestPath)
     }
 
     private suspend fun coFilter(

@@ -6,6 +6,7 @@ import io.github.susimsek.springbootgraalvmnativeexample.config.logging.formatte
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.formatter.LogFormatter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 
 @Configuration(proxyBeanMethods = false)
 class LoggingConfig {
@@ -18,5 +19,6 @@ class LoggingConfig {
     @Bean
     fun loggingExchangeFilterFunction(logFormatter: LogFormatter): WebClientLoggingFilter {
         return WebClientLoggingFilter(logFormatter)
+            .shouldNotLog(HttpMethod.GET, "/todos")
     }
 }
