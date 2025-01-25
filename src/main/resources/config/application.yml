@@ -85,5 +85,17 @@ management:
       probability: 1.0
     enabled: true
 
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
+    operationsSorter: method
+    default-model-expand-depth: 1
+    display-request-duration: true
+    default-model-rendering: schema
+    filter: true
+    show-extensions: true
+    try-it-out-enabled: true
+  show-actuator: false
+
 logging:
   pattern: '%clr(%d{yyyy-MM-dd''T''HH:mm:ss.SSSXXX}){faint} %clr(%5p){highlight} %clr(${PID:- }){magenta} --- [%clr(${spring.application.name:-}){green},%X{traceId:-},%X{spanId:-}] [%clr(%t){faint}] %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%clr(%wEx){red}'
