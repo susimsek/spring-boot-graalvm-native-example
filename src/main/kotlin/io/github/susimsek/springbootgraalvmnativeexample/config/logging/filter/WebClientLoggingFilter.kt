@@ -5,6 +5,7 @@ import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.Ht
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.Source
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.formatter.LogFormatter
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.model.HttpLog
+import io.github.susimsek.springbootgraalvmnativeexample.config.logging.utils.Obfuscator.obfuscateHeaders
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.wrapper.BufferingClientHttpRequest
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -29,6 +30,9 @@ class WebClientLoggingFilter(
 
     private val logger = LoggerFactory.getLogger(WebClientLoggingFilter::class.java)
     private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
+
+    private val sensitiveHeaders: MutableList<String> =
+        mutableListOf("Authorization", "Cookie", "Set-Cookie")
 
     override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
         if (httpLogLevel == HttpLogLevel.NONE || shouldNotLog(request)) {
@@ -96,7 +100,14 @@ class WebClientLoggingFilter(
             method = request.method(),
             uri = request.url(),
             statusCode = null,
-            headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) request.headers() else null,
+            headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
+                obfuscateHeaders(
+                    request.headers(),
+                    sensitiveHeaders
+                )
+            } else {
+                null
+            },
             body = body,
             source = Source.CLIENT,
             durationMs = null
@@ -110,7 +121,17 @@ class WebClientLoggingFilter(
             method = request.method(),
             uri = request.url(),
             statusCode = response.statusCode().value(),
-            headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) response.headers().asHttpHeaders() else null,
+            headers = if (isHttpLogLevel(
+                    HttpLogLevel.HEADERS
+                )
+            ) {
+                obfuscateHeaders(
+                    response.headers().asHttpHeaders(),
+                    sensitiveHeaders
+                )
+            } else {
+                null
+            },
             body = body,
             source = Source.CLIENT,
             durationMs = durationMs
@@ -148,5 +169,10 @@ class WebClientLoggingFilter(
 
     private fun isHttpLogLevel(level: HttpLogLevel): Boolean {
         return httpLogLevel.ordinal >= level.ordinal
+    }
+
+    fun sensitiveHeader(vararg headers: String): WebClientLoggingFilter {
+        sensitiveHeaders.addAll(headers)
+        return this
     }
 }
