@@ -30,7 +30,8 @@ class LoggingFilter private constructor(
     private val obfuscator: Obfuscator,
     private val httpLogLevel: HttpLogLevel,
     private val sensitiveHeaders: List<String>,
-    private val shouldNotLogPatterns: List<Pair<HttpMethod?, String>>
+    private val shouldNotLogPatterns: List<Pair<HttpMethod?, String>>,
+    private val sensitiveJsonBodyFields: List<String>
 ) : WebFilter {
 
     private val logger = LoggerFactory.getLogger(LoggingFilter::class.java)
@@ -96,6 +97,12 @@ class LoggingFilter private constructor(
     }
 
     private fun logRequest(request: ServerHttpRequest, body: String) {
+        val maskedBody = if (sensitiveJsonBodyFields.isNotEmpty()) {
+            obfuscator
+                .maskJsonBody(body, sensitiveJsonBodyFields)
+        } else {
+            body
+        }
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
             obfuscator.obfuscateHeaders(request.headers, sensitiveHeaders)
         } else {
@@ -107,7 +114,7 @@ class LoggingFilter private constructor(
             uri = request.uri,
             statusCode = null,
             headers = obfuscatedHeaders,
-            body = body,
+            body = maskedBody,
             source = Source.SERVER,
             durationMs = null
         )
@@ -117,6 +124,12 @@ class LoggingFilter private constructor(
     private fun logResponse(exchange: ServerWebExchange, body: String, durationMs: Long) {
         val request = exchange.request
         val response = exchange.response
+        val maskedBody = if (sensitiveJsonBodyFields.isNotEmpty()) {
+            obfuscator
+                .maskJsonBody(body, sensitiveJsonBodyFields)
+        } else {
+            body
+        }
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
             obfuscator.obfuscateHeaders(response.headers, sensitiveHeaders)
         } else {
@@ -128,7 +141,7 @@ class LoggingFilter private constructor(
             uri = request.uri,
             statusCode = response.statusCode?.value(),
             headers = obfuscatedHeaders,
-            body = body,
+            body = maskedBody,
             source = Source.SERVER,
             durationMs = durationMs
         )
@@ -152,7 +165,6 @@ class LoggingFilter private constructor(
         return httpLogLevel.ordinal >= level.ordinal
     }
 
-    // Builder Pattern
     companion object {
         fun builder(
             logFormatter: LogFormatter,
@@ -167,8 +179,13 @@ class LoggingFilter private constructor(
         private val obfuscator: Obfuscator
     ) {
         private var httpLogLevel: HttpLogLevel = HttpLogLevel.FULL
-        private val sensitiveHeaders: MutableList<String> = mutableListOf("Authorization", "Cookie", "Set-Cookie")
+        private val sensitiveHeaders: MutableList<String> =
+            mutableListOf("Authorization", "Cookie", "Set-Cookie")
         private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
+        private val sensitiveJsonBodyFields: MutableList<String> = mutableListOf(
+            "access_token",
+            "refresh_token"
+        )
 
         fun httpLogLevel(level: HttpLogLevel) = apply { this.httpLogLevel = level }
         fun sensitiveHeader(vararg headers: String) = apply { this.sensitiveHeaders.addAll(headers) }
@@ -176,9 +193,10 @@ class LoggingFilter private constructor(
             patterns.forEach { this.shouldNotLogPatterns.add(Pair(method, it)) }
         }
         fun shouldNotLog(vararg patterns: String) = apply {
-            this.shouldNotLogPatterns.addAll(
-                patterns.map { Pair(null, it) }
-            )
+            this.shouldNotLogPatterns.addAll(patterns.map { Pair(null, it) })
+        }
+        fun sensitiveJsonBodyField(vararg paths: String) = apply {
+            this.sensitiveJsonBodyFields.addAll(paths)
         }
 
         fun build(): LoggingFilter {
@@ -187,7 +205,8 @@ class LoggingFilter private constructor(
                 obfuscator,
                 httpLogLevel,
                 sensitiveHeaders,
-                shouldNotLogPatterns
+                shouldNotLogPatterns,
+              sensitiveJsonBodyFields
             )
         }
     }

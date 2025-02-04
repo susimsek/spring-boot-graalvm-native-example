@@ -28,7 +28,8 @@ class WebClientLoggingFilter private constructor(
     private val obfuscator: Obfuscator,
     private val httpLogLevel: HttpLogLevel,
     private val sensitiveHeaders: List<String>,
-    private val shouldNotLogPatterns: List<Pair<HttpMethod?, String>>
+    private val shouldNotLogPatterns: List<Pair<HttpMethod?, String>>,
+    private val sensitiveJsonBodyFields: List<String>
 ) : ExchangeFilterFunction {
 
     private val logger = LoggerFactory.getLogger(WebClientLoggingFilter::class.java)
@@ -94,17 +95,23 @@ class WebClientLoggingFilter private constructor(
     }
 
     private fun logRequest(request: ClientRequest, body: String) {
+        val maskedBody = if (sensitiveJsonBodyFields.isNotEmpty()) {
+            obfuscator.maskJsonBody(body, sensitiveJsonBodyFields)
+        } else {
+            body
+        }
+        val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
+            obfuscator.obfuscateHeaders(request.headers(), sensitiveHeaders)
+        } else {
+            null
+        }
         val httpLog = HttpLog(
             type = HttpLogType.REQUEST,
             method = request.method(),
             uri = request.url(),
             statusCode = null,
-            headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
-                obfuscator.obfuscateHeaders(request.headers(), sensitiveHeaders)
-            } else {
-                null
-            },
-            body = body,
+            headers = obfuscatedHeaders,
+            body = maskedBody,
             source = Source.CLIENT,
             durationMs = null
         )
@@ -112,17 +119,23 @@ class WebClientLoggingFilter private constructor(
     }
 
     private fun logResponse(response: ClientResponse, request: ClientRequest, body: String, durationMs: Long) {
+        val maskedBody = if (sensitiveJsonBodyFields.isNotEmpty()) {
+            obfuscator.maskJsonBody(body, sensitiveJsonBodyFields)
+        } else {
+            body
+        }
+        val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
+            obfuscator.obfuscateHeaders(response.headers().asHttpHeaders(), sensitiveHeaders)
+        } else {
+            null
+        }
         val httpLog = HttpLog(
             type = HttpLogType.RESPONSE,
             method = request.method(),
             uri = request.url(),
             statusCode = response.statusCode().value(),
-            headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
-                obfuscator.obfuscateHeaders(response.headers().asHttpHeaders(), sensitiveHeaders)
-            } else {
-                null
-            },
-            body = body,
+            headers = obfuscatedHeaders,
+            body = maskedBody,
             source = Source.CLIENT,
             durationMs = durationMs
         )
@@ -146,11 +159,10 @@ class WebClientLoggingFilter private constructor(
         return httpLogLevel.ordinal >= level.ordinal
     }
 
-    // Builder Pattern
     companion object {
         fun builder(
             logFormatter: LogFormatter,
-            obfuscator: Obfuscator,
+            obfuscator: Obfuscator
         ): Builder {
             return Builder(logFormatter, obfuscator)
         }
@@ -164,8 +176,12 @@ class WebClientLoggingFilter private constructor(
         private val sensitiveHeaders: MutableList<String> = mutableListOf("Authorization", "Cookie", "Set-Cookie")
         private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
 
+        private val sensitiveJsonBodyFields: MutableList<String> =
+            mutableListOf("access_token", "refresh_token")
+
         fun httpLogLevel(level: HttpLogLevel) = apply { this.httpLogLevel = level }
         fun sensitiveHeader(vararg headers: String) = apply { this.sensitiveHeaders.addAll(headers) }
+        fun sensitiveJsonBodyField(vararg fields: String) = apply { this.sensitiveJsonBodyFields.addAll(fields) }
         fun shouldNotLog(method: HttpMethod?, vararg patterns: String) = apply {
             patterns.forEach { this.shouldNotLogPatterns.add(Pair(method, it)) }
         }
@@ -179,7 +195,8 @@ class WebClientLoggingFilter private constructor(
                 obfuscator,
                 httpLogLevel,
                 sensitiveHeaders,
-                shouldNotLogPatterns
+                shouldNotLogPatterns,
+                sensitiveJsonBodyFields
             )
         }
     }

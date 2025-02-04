@@ -20,8 +20,8 @@ class LoggingConfig {
     }
 
     @Bean
-    fun obfuscator(): Obfuscator {
-        return Obfuscator()
+    fun obfuscator(objectMapper: ObjectMapper): Obfuscator {
+        return Obfuscator(objectMapper)
     }
 
     @Bean
