@@ -32,7 +32,11 @@ class LoggingFilter(
     private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        if (httpLogLevel == HttpLogLevel.NONE || shouldNotLog(exchange.request)) {
+        val request = exchange.request
+        val isLogLevelNone = httpLogLevel == HttpLogLevel.NONE
+        val isExcludedPath = shouldNotLog(request)
+
+        if (isLogLevelNone || isExcludedPath) {
             return chain.filter(exchange)
         }
         return mono { processRequest(exchange, chain) }
@@ -72,7 +76,6 @@ class LoggingFilter(
                 } else {
                     stopWatch.stop()
                     val durationMs = stopWatch.totalTimeMillis
-                    // Log boş body
                     logResponse(exchange, "", durationMs)
                     super.writeWith(body)
                 }
@@ -108,6 +111,7 @@ class LoggingFilter(
     private fun logResponse(exchange: ServerWebExchange, body: String, durationMs: Long) {
         val request = exchange.request
         val response = exchange.response
+
         val httpLog = HttpLog(
             type = HttpLogType.RESPONSE,
             method = request.method,

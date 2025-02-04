@@ -29,6 +29,7 @@ class LoggingConfig {
             .shouldNotLog(
                 "/webjars/**",
                 "/css/**",
+                "/",
                 "/js/**",
                 "/images/**",
                 "/*.html",
