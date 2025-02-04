@@ -32,11 +32,7 @@ class LoggingFilter(
     private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        val request = exchange.request
-        val isLogLevelNone = httpLogLevel == HttpLogLevel.NONE
-        val isExcludedPath = shouldNotLog(request)
-
-        if (isLogLevelNone || isExcludedPath) {
+        if (httpLogLevel == HttpLogLevel.NONE || shouldNotLog(exchange.request)) {
             return chain.filter(exchange)
         }
         return mono { processRequest(exchange, chain) }
