@@ -42,13 +42,12 @@ class LoggingFilter(
         val stopWatch = StopWatch()
         stopWatch.start()
 
-        var capturedRequestBody = ""
         val decoratedRequest = object : ServerHttpRequestDecorator(exchange.request) {
             override fun getBody(): Flux<DataBuffer> {
                 return if (httpLogLevel == HttpLogLevel.FULL) {
                     Flux.from(
                         DataBufferCopyUtils.wrapAndBuffer(super.getBody()) { bytes ->
-                            capturedRequestBody = String(bytes, StandardCharsets.UTF_8)
+                            val capturedRequestBody = String(bytes, StandardCharsets.UTF_8)
                             logRequest(this, capturedRequestBody)
                         }
                     )
