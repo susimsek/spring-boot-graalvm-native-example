@@ -29,7 +29,8 @@ class WebClientLoggingFilter private constructor(
     private val httpLogLevel: HttpLogLevel,
     private val sensitiveHeaders: List<String>,
     private val shouldNotLogPatterns: List<Pair<HttpMethod?, String>>,
-    private val sensitiveJsonBodyFields: List<String>
+    private val sensitiveJsonBodyFields: List<String>,
+    private val sensitiveParameters: List<String>
 ) : ExchangeFilterFunction {
 
     private val logger = LoggerFactory.getLogger(WebClientLoggingFilter::class.java)
@@ -100,6 +101,11 @@ class WebClientLoggingFilter private constructor(
         } else {
             body
         }
+        val maskedUri = if (sensitiveParameters.isNotEmpty()) {
+            obfuscator.maskParameters(request.url(), sensitiveParameters)
+        } else {
+            request.url()
+        }
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
             obfuscator.obfuscateHeaders(request.headers(), sensitiveHeaders)
         } else {
@@ -108,7 +114,7 @@ class WebClientLoggingFilter private constructor(
         val httpLog = HttpLog(
             type = HttpLogType.REQUEST,
             method = request.method(),
-            uri = request.url(),
+            uri = maskedUri,
             statusCode = null,
             headers = obfuscatedHeaders,
             body = maskedBody,
@@ -124,6 +130,11 @@ class WebClientLoggingFilter private constructor(
         } else {
             body
         }
+        val maskedUri = if (sensitiveParameters.isNotEmpty()) {
+            obfuscator.maskParameters(request.url(), sensitiveParameters)
+        } else {
+            request.url()
+        }
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
             obfuscator.obfuscateHeaders(response.headers().asHttpHeaders(), sensitiveHeaders)
         } else {
@@ -132,7 +143,7 @@ class WebClientLoggingFilter private constructor(
         val httpLog = HttpLog(
             type = HttpLogType.RESPONSE,
             method = request.method(),
-            uri = request.url(),
+            uri = maskedUri,
             statusCode = response.statusCode().value(),
             headers = obfuscatedHeaders,
             body = maskedBody,
@@ -173,15 +184,25 @@ class WebClientLoggingFilter private constructor(
         private val obfuscator: Obfuscator
     ) {
         private var httpLogLevel: HttpLogLevel = HttpLogLevel.FULL
-        private val sensitiveHeaders: MutableList<String> = mutableListOf("Authorization", "Cookie", "Set-Cookie")
+        private val sensitiveHeaders: MutableList<String> = mutableListOf(
+          "Authorization", "Cookie", "Set-Cookie")
         private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
 
         private val sensitiveJsonBodyFields: MutableList<String> =
             mutableListOf("access_token", "refresh_token")
 
+        private val sensitiveParameters: MutableList<String> = mutableListOf(
+            "access_token"
+        )
+
         fun httpLogLevel(level: HttpLogLevel) = apply { this.httpLogLevel = level }
         fun sensitiveHeader(vararg headers: String) = apply { this.sensitiveHeaders.addAll(headers) }
-        fun sensitiveJsonBodyField(vararg fields: String) = apply { this.sensitiveJsonBodyFields.addAll(fields) }
+        fun sensitiveJsonBodyField(vararg fields: String) = apply {
+            this.sensitiveJsonBodyFields.addAll(fields)
+        }
+        fun sensitiveParameter(vararg params: String) = apply {
+            this.sensitiveParameters.addAll(params)
+        }
         fun shouldNotLog(method: HttpMethod?, vararg patterns: String) = apply {
             patterns.forEach { this.shouldNotLogPatterns.add(Pair(method, it)) }
         }
@@ -196,7 +217,8 @@ class WebClientLoggingFilter private constructor(
                 httpLogLevel,
                 sensitiveHeaders,
                 shouldNotLogPatterns,
-                sensitiveJsonBodyFields
+                sensitiveJsonBodyFields,
+                sensitiveParameters
             )
         }
     }

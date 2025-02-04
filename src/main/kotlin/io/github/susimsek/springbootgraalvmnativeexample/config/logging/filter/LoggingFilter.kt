@@ -31,7 +31,8 @@ class LoggingFilter private constructor(
     private val httpLogLevel: HttpLogLevel,
     private val sensitiveHeaders: List<String>,
     private val shouldNotLogPatterns: List<Pair<HttpMethod?, String>>,
-    private val sensitiveJsonBodyFields: List<String>
+    private val sensitiveJsonBodyFields: List<String>,
+    private val sensitiveParameters: List<String>
 ) : WebFilter {
 
     private val logger = LoggerFactory.getLogger(LoggingFilter::class.java)
@@ -103,6 +104,11 @@ class LoggingFilter private constructor(
         } else {
             body
         }
+        val maskedUri = if (sensitiveParameters.isNotEmpty()) {
+            obfuscator.maskParameters(request.uri, sensitiveParameters)
+        } else {
+            request.uri
+        }
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
             obfuscator.obfuscateHeaders(request.headers, sensitiveHeaders)
         } else {
@@ -111,7 +117,7 @@ class LoggingFilter private constructor(
         val httpLog = HttpLog(
             type = HttpLogType.REQUEST,
             method = request.method,
-            uri = request.uri,
+            uri = maskedUri,
             statusCode = null,
             headers = obfuscatedHeaders,
             body = maskedBody,
@@ -130,6 +136,11 @@ class LoggingFilter private constructor(
         } else {
             body
         }
+        val maskedUri = if (sensitiveParameters.isNotEmpty()) {
+            obfuscator.maskParameters(request.uri, sensitiveParameters)
+        } else {
+            request.uri
+        }
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
             obfuscator.obfuscateHeaders(response.headers, sensitiveHeaders)
         } else {
@@ -138,7 +149,7 @@ class LoggingFilter private constructor(
         val httpLog = HttpLog(
             type = HttpLogType.RESPONSE,
             method = request.method,
-            uri = request.uri,
+            uri = maskedUri,
             statusCode = response.statusCode?.value(),
             headers = obfuscatedHeaders,
             body = maskedBody,
@@ -186,6 +197,9 @@ class LoggingFilter private constructor(
             "access_token",
             "refresh_token"
         )
+        private val sensitiveParameters: MutableList<String> = mutableListOf(
+            "access_token"
+        )
 
         fun httpLogLevel(level: HttpLogLevel) = apply { this.httpLogLevel = level }
         fun sensitiveHeader(vararg headers: String) = apply { this.sensitiveHeaders.addAll(headers) }
@@ -199,6 +213,10 @@ class LoggingFilter private constructor(
             this.sensitiveJsonBodyFields.addAll(paths)
         }
 
+        fun sensitiveParameter(vararg params: String) = apply {
+            this.sensitiveParameters.addAll(params)
+        }
+
         fun build(): LoggingFilter {
             return LoggingFilter(
                 logFormatter,
@@ -206,7 +224,8 @@ class LoggingFilter private constructor(
                 httpLogLevel,
                 sensitiveHeaders,
                 shouldNotLogPatterns,
-              sensitiveJsonBodyFields
+                sensitiveJsonBodyFields,
+                sensitiveParameters
             )
         }
     }

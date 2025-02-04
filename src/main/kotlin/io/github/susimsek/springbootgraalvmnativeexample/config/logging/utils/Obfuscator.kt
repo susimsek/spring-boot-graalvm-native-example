@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.springframework.http.HttpHeaders
 import java.io.IOException
+import java.net.URI
+import java.net.URISyntaxException
 
 class Obfuscator(
     private val objectMapper: ObjectMapper
@@ -32,6 +34,28 @@ class Obfuscator(
             objectMapper.writeValueAsString(root)
         } catch (e: IOException) {
             body
+        }
+    }
+
+    fun maskParameters(uri: URI, sensitiveParameters: List<String>): URI {
+        return try {
+            val query = uri.query ?: return uri
+            val maskedQuery = query.split("&").joinToString("&") { param ->
+                val parts = param.split("=")
+                if (parts.size == 2) {
+                    val key = parts[0]
+                    if (sensitiveParameters.any { it.equals(key, ignoreCase = true) }) {
+                        "$key=******"
+                    } else {
+                        param
+                    }
+                } else {
+                    param
+                }
+            }
+           return URI(uri.scheme, uri.authority, uri.path, maskedQuery, uri.fragment)
+        } catch (ex: URISyntaxException) {
+            uri
         }
     }
 
