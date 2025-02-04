@@ -23,16 +23,14 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.nio.charset.StandardCharsets
 
-class WebClientLoggingFilter(
+class WebClientLoggingFilter private constructor(
     private val logFormatter: LogFormatter,
-    private val httpLogLevel: HttpLogLevel = HttpLogLevel.FULL
+    private val httpLogLevel: HttpLogLevel,
+    private val sensitiveHeaders: List<String>,
+    private val shouldNotLogPatterns: List<Pair<HttpMethod?, String>>
 ) : ExchangeFilterFunction {
 
     private val logger = LoggerFactory.getLogger(WebClientLoggingFilter::class.java)
-    private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
-
-    private val sensitiveHeaders: MutableList<String> =
-        mutableListOf("Authorization", "Cookie", "Set-Cookie")
 
     override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
         if (httpLogLevel == HttpLogLevel.NONE || shouldNotLog(request)) {
@@ -90,21 +88,18 @@ class WebClientLoggingFilter(
             response
         }
 
-        logResponse(mutatedResponse, request, responseBody?.toString(StandardCharsets.UTF_8) ?: "", durationMs)
+        logResponse(response, request, responseBody?.toString(StandardCharsets.UTF_8) ?: "", durationMs)
         return mutatedResponse
     }
 
     private fun logRequest(request: ClientRequest, body: String) {
-        val logBuilder = HttpLog(
+        val httpLog = HttpLog(
             type = HttpLogType.REQUEST,
             method = request.method(),
             uri = request.url(),
             statusCode = null,
             headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
-                obfuscateHeaders(
-                    request.headers(),
-                    sensitiveHeaders
-                )
+                obfuscateHeaders(request.headers(), sensitiveHeaders)
             } else {
                 null
             },
@@ -112,23 +107,17 @@ class WebClientLoggingFilter(
             source = Source.CLIENT,
             durationMs = null
         )
-        logger.info("HTTP Request: {}", logFormatter.format(logBuilder))
+        logger.info("HTTP Request: {}", logFormatter.format(httpLog))
     }
 
     private fun logResponse(response: ClientResponse, request: ClientRequest, body: String, durationMs: Long) {
-        val logBuilder = HttpLog(
+        val httpLog = HttpLog(
             type = HttpLogType.RESPONSE,
             method = request.method(),
             uri = request.url(),
             statusCode = response.statusCode().value(),
-            headers = if (isHttpLogLevel(
-                    HttpLogLevel.HEADERS
-                )
-            ) {
-                obfuscateHeaders(
-                    response.headers().asHttpHeaders(),
-                    sensitiveHeaders
-                )
+            headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
+                obfuscateHeaders(response.headers().asHttpHeaders(), sensitiveHeaders)
             } else {
                 null
             },
@@ -136,7 +125,7 @@ class WebClientLoggingFilter(
             source = Source.CLIENT,
             durationMs = durationMs
         )
-        logger.info("HTTP Response: {}", logFormatter.format(logBuilder))
+        logger.info("HTTP Response: {}", logFormatter.format(httpLog))
     }
 
     private fun shouldNotLog(request: ClientRequest): Boolean {
@@ -152,27 +141,33 @@ class WebClientLoggingFilter(
         return regexPattern.matches(requestPath)
     }
 
-    fun shouldNotLog(method: HttpMethod?, vararg patterns: String): WebClientLoggingFilter {
-        patterns.forEach { pattern ->
-            shouldNotLogPatterns.add(Pair(method, pattern))
-        }
-        return this
-    }
-
-    fun shouldNotLog(vararg patterns: String): WebClientLoggingFilter {
-        return shouldNotLog(null, *patterns)
-    }
-
-    fun shouldNotLog(method: HttpMethod): WebClientLoggingFilter {
-        return shouldNotLog(method, "/**")
-    }
-
     private fun isHttpLogLevel(level: HttpLogLevel): Boolean {
         return httpLogLevel.ordinal >= level.ordinal
     }
 
-    fun sensitiveHeader(vararg headers: String): WebClientLoggingFilter {
-        sensitiveHeaders.addAll(headers)
-        return this
+    // Builder Pattern
+    companion object {
+        fun builder(logFormatter: LogFormatter): Builder {
+            return Builder(logFormatter)
+        }
+    }
+
+    class Builder(private val logFormatter: LogFormatter) {
+        private var httpLogLevel: HttpLogLevel = HttpLogLevel.FULL
+        private val sensitiveHeaders: MutableList<String> = mutableListOf("Authorization", "Cookie", "Set-Cookie")
+        private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
+
+        fun httpLogLevel(level: HttpLogLevel) = apply { this.httpLogLevel = level }
+        fun sensitiveHeader(vararg headers: String) = apply { this.sensitiveHeaders.addAll(headers) }
+        fun shouldNotLog(method: HttpMethod?, vararg patterns: String) = apply {
+            patterns.forEach { this.shouldNotLogPatterns.add(Pair(method, it)) }
+        }
+        fun shouldNotLog(vararg patterns: String) = apply {
+            this.shouldNotLogPatterns.addAll(patterns.map { Pair(null, it) })
+        }
+
+        fun build(): WebClientLoggingFilter {
+            return WebClientLoggingFilter(logFormatter, httpLogLevel, sensitiveHeaders, shouldNotLogPatterns)
+        }
     }
 }

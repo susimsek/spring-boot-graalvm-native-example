@@ -1,6 +1,7 @@
 package io.github.susimsek.springbootgraalvmnativeexample.config.logging
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.HttpLogLevel
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.filter.LoggingFilter
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.filter.WebClientLoggingFilter
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.formatter.JsonLogFormatter
@@ -19,13 +20,16 @@ class LoggingConfig {
 
     @Bean
     fun loggingExchangeFilterFunction(logFormatter: LogFormatter): WebClientLoggingFilter {
-        return WebClientLoggingFilter(logFormatter)
+        return WebClientLoggingFilter.builder(logFormatter)
+            .httpLogLevel(HttpLogLevel.FULL)
             .shouldNotLog(HttpMethod.GET, "/todos")
+            .build()
     }
 
     @Bean
     fun loggingFilter(logFormatter: LogFormatter): LoggingFilter {
-        return LoggingFilter(logFormatter)
+        return LoggingFilter.builder(logFormatter)
+            .httpLogLevel(HttpLogLevel.FULL)
             .shouldNotLog(
                 "/webjars/**",
                 "/css/**",
@@ -46,6 +50,6 @@ class LoggingConfig {
                 "/swagger-ui.html",
                 "/swagger-ui/**",
                 "/v3/api-docs/**"
-            )
+            ).build()
     }
 }
