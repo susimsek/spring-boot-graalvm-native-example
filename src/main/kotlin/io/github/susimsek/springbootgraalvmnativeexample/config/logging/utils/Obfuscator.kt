@@ -2,7 +2,7 @@ package io.github.susimsek.springbootgraalvmnativeexample.config.logging.utils
 
 import org.springframework.http.HttpHeaders
 
-object Obfuscator {
+class Obfuscator {
 
     fun obfuscateHeaders(headers: HttpHeaders, sensitiveHeaders: List<String>): HttpHeaders {
         val masked = HttpHeaders()

@@ -6,6 +6,7 @@ import io.github.susimsek.springbootgraalvmnativeexample.config.logging.filter.L
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.filter.WebClientLoggingFilter
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.formatter.JsonLogFormatter
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.formatter.LogFormatter
+import io.github.susimsek.springbootgraalvmnativeexample.config.logging.utils.Obfuscator
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -19,16 +20,27 @@ class LoggingConfig {
     }
 
     @Bean
-    fun loggingExchangeFilterFunction(logFormatter: LogFormatter): WebClientLoggingFilter {
-        return WebClientLoggingFilter.builder(logFormatter)
+    fun obfuscator(): Obfuscator {
+        return Obfuscator()
+    }
+
+    @Bean
+    fun loggingExchangeFilterFunction(
+        logFormatter: LogFormatter,
+        obfuscator: Obfuscator
+    ): WebClientLoggingFilter {
+        return WebClientLoggingFilter.builder(logFormatter, obfuscator)
             .httpLogLevel(HttpLogLevel.FULL)
             .shouldNotLog(HttpMethod.GET, "/todos")
             .build()
     }
 
     @Bean
-    fun loggingFilter(logFormatter: LogFormatter): LoggingFilter {
-        return LoggingFilter.builder(logFormatter)
+    fun loggingFilter(
+        logFormatter: LogFormatter,
+        obfuscator: Obfuscator
+    ): LoggingFilter {
+        return LoggingFilter.builder(logFormatter, obfuscator)
             .httpLogLevel(HttpLogLevel.FULL)
             .shouldNotLog(
                 "/webjars/**",

@@ -6,7 +6,7 @@ import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.So
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.formatter.LogFormatter
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.model.HttpLog
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.utils.DataBufferCopyUtils
-import io.github.susimsek.springbootgraalvmnativeexample.config.logging.utils.Obfuscator.obfuscateHeaders
+import io.github.susimsek.springbootgraalvmnativeexample.config.logging.utils.Obfuscator
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.mono
 import org.reactivestreams.Publisher
@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets
 
 class LoggingFilter private constructor(
     private val logFormatter: LogFormatter,
+    private val obfuscator: Obfuscator,
     private val httpLogLevel: HttpLogLevel,
     private val sensitiveHeaders: List<String>,
     private val shouldNotLogPatterns: List<Pair<HttpMethod?, String>>
@@ -96,7 +97,7 @@ class LoggingFilter private constructor(
 
     private fun logRequest(request: ServerHttpRequest, body: String) {
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
-            obfuscateHeaders(request.headers, sensitiveHeaders)
+            obfuscator.obfuscateHeaders(request.headers, sensitiveHeaders)
         } else {
             null
         }
@@ -117,7 +118,7 @@ class LoggingFilter private constructor(
         val request = exchange.request
         val response = exchange.response
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
-            obfuscateHeaders(response.headers, sensitiveHeaders)
+            obfuscator.obfuscateHeaders(response.headers, sensitiveHeaders)
         } else {
             null
         }
@@ -153,12 +154,18 @@ class LoggingFilter private constructor(
 
     // Builder Pattern
     companion object {
-        fun builder(logFormatter: LogFormatter): Builder {
-            return Builder(logFormatter)
+        fun builder(
+            logFormatter: LogFormatter,
+            obfuscator: Obfuscator
+        ): Builder {
+            return Builder(logFormatter, obfuscator)
         }
     }
 
-    class Builder(private val logFormatter: LogFormatter) {
+    class Builder(
+        private val logFormatter: LogFormatter,
+        private val obfuscator: Obfuscator
+    ) {
         private var httpLogLevel: HttpLogLevel = HttpLogLevel.FULL
         private val sensitiveHeaders: MutableList<String> = mutableListOf("Authorization", "Cookie", "Set-Cookie")
         private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
@@ -168,12 +175,20 @@ class LoggingFilter private constructor(
         fun shouldNotLog(method: HttpMethod?, vararg patterns: String) = apply {
             patterns.forEach { this.shouldNotLogPatterns.add(Pair(method, it)) }
         }
-        fun shouldNotLog(vararg patterns: String) = apply { this.shouldNotLogPatterns.addAll(
-            patterns.map { Pair(null, it) }
-        ) }
+        fun shouldNotLog(vararg patterns: String) = apply {
+            this.shouldNotLogPatterns.addAll(
+                patterns.map { Pair(null, it) }
+            )
+        }
 
         fun build(): LoggingFilter {
-            return LoggingFilter(logFormatter, httpLogLevel, sensitiveHeaders, shouldNotLogPatterns)
+            return LoggingFilter(
+                logFormatter,
+                obfuscator,
+                httpLogLevel,
+                sensitiveHeaders,
+                shouldNotLogPatterns
+            )
         }
     }
 }

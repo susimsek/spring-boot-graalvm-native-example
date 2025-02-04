@@ -5,7 +5,7 @@ import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.Ht
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.enums.Source
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.formatter.LogFormatter
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.model.HttpLog
-import io.github.susimsek.springbootgraalvmnativeexample.config.logging.utils.Obfuscator.obfuscateHeaders
+import io.github.susimsek.springbootgraalvmnativeexample.config.logging.utils.Obfuscator
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.wrapper.BufferingClientHttpRequest
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets
 
 class WebClientLoggingFilter private constructor(
     private val logFormatter: LogFormatter,
+    private val obfuscator: Obfuscator,
     private val httpLogLevel: HttpLogLevel,
     private val sensitiveHeaders: List<String>,
     private val shouldNotLogPatterns: List<Pair<HttpMethod?, String>>
@@ -99,7 +100,7 @@ class WebClientLoggingFilter private constructor(
             uri = request.url(),
             statusCode = null,
             headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
-                obfuscateHeaders(request.headers(), sensitiveHeaders)
+                obfuscator.obfuscateHeaders(request.headers(), sensitiveHeaders)
             } else {
                 null
             },
@@ -117,7 +118,7 @@ class WebClientLoggingFilter private constructor(
             uri = request.url(),
             statusCode = response.statusCode().value(),
             headers = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
-                obfuscateHeaders(response.headers().asHttpHeaders(), sensitiveHeaders)
+                obfuscator.obfuscateHeaders(response.headers().asHttpHeaders(), sensitiveHeaders)
             } else {
                 null
             },
@@ -147,12 +148,18 @@ class WebClientLoggingFilter private constructor(
 
     // Builder Pattern
     companion object {
-        fun builder(logFormatter: LogFormatter): Builder {
-            return Builder(logFormatter)
+        fun builder(
+            logFormatter: LogFormatter,
+            obfuscator: Obfuscator,
+        ): Builder {
+            return Builder(logFormatter, obfuscator)
         }
     }
 
-    class Builder(private val logFormatter: LogFormatter) {
+    class Builder(
+        private val logFormatter: LogFormatter,
+        private val obfuscator: Obfuscator
+    ) {
         private var httpLogLevel: HttpLogLevel = HttpLogLevel.FULL
         private val sensitiveHeaders: MutableList<String> = mutableListOf("Authorization", "Cookie", "Set-Cookie")
         private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
@@ -167,7 +174,13 @@ class WebClientLoggingFilter private constructor(
         }
 
         fun build(): WebClientLoggingFilter {
-            return WebClientLoggingFilter(logFormatter, httpLogLevel, sensitiveHeaders, shouldNotLogPatterns)
+            return WebClientLoggingFilter(
+                logFormatter,
+                obfuscator,
+                httpLogLevel,
+                sensitiveHeaders,
+                shouldNotLogPatterns
+            )
         }
     }
 }
