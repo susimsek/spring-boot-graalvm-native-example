@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator
 import org.springframework.util.StopWatch
 import org.springframework.web.server.ServerWebExchange
@@ -23,6 +24,7 @@ import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.net.URI
 import java.nio.charset.StandardCharsets
 
 class LoggingFilter private constructor(
@@ -48,18 +50,24 @@ class LoggingFilter private constructor(
     private suspend fun processRequest(exchange: ServerWebExchange, chain: WebFilterChain): Void {
         val stopWatch = StopWatch()
         stopWatch.start()
+        val uri = maskUri(exchange.request)
 
+        val request = exchange.request
         val decoratedRequest = object : ServerHttpRequestDecorator(exchange.request) {
             override fun getBody(): Flux<DataBuffer> {
                 return if (httpLogLevel == HttpLogLevel.FULL) {
                     Flux.from(
                         DataBufferCopyUtils.wrapAndBuffer(super.getBody()) { bytes ->
                             val capturedRequestBody = String(bytes, StandardCharsets.UTF_8)
-                            logRequest(this, capturedRequestBody)
+                            logRequest(
+                                this,
+                                uri,
+                                capturedRequestBody
+                            )
                         }
                     )
                 } else {
-                    logRequest(this, "")
+                    logRequest(this, uri, "")
                     super.getBody()
                 }
             }
@@ -73,13 +81,25 @@ class LoggingFilter private constructor(
                         val responseBody = String(bytes, StandardCharsets.UTF_8)
                         stopWatch.stop()
                         val durationMs = stopWatch.totalTimeMillis
-                        logResponse(exchange, responseBody, durationMs)
+                        logResponse(
+                            exchange.response,
+                            uri,
+                            exchange.request.method,
+                            responseBody,
+                            durationMs
+                        )
                     }
                     super.writeWith(wrappedBody)
                 } else {
                     stopWatch.stop()
                     val durationMs = stopWatch.totalTimeMillis
-                    logResponse(exchange, "", durationMs)
+                    logResponse(
+                        exchange.response,
+                        uri,
+                        request.method,
+                        "",
+                        durationMs
+                    )
                     super.writeWith(body)
                 }
             }
@@ -97,17 +117,16 @@ class LoggingFilter private constructor(
         return chain.filter(mutatedExchange).awaitSingle()
     }
 
-    private fun logRequest(request: ServerHttpRequest, body: String) {
+    private fun logRequest(
+        request: ServerHttpRequest,
+        uri: URI,
+        body: String
+    ) {
         val maskedBody = if (sensitiveJsonBodyFields.isNotEmpty()) {
             obfuscator
                 .maskJsonBody(body, sensitiveJsonBodyFields)
         } else {
             body
-        }
-        val maskedUri = if (sensitiveParameters.isNotEmpty()) {
-            obfuscator.maskParameters(request.uri, sensitiveParameters)
-        } else {
-            request.uri
         }
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
             obfuscator.obfuscateHeaders(request.headers, sensitiveHeaders)
@@ -117,7 +136,7 @@ class LoggingFilter private constructor(
         val httpLog = HttpLog(
             type = HttpLogType.REQUEST,
             method = request.method,
-            uri = maskedUri,
+            uri = uri,
             statusCode = null,
             headers = obfuscatedHeaders,
             body = maskedBody,
@@ -127,19 +146,18 @@ class LoggingFilter private constructor(
         logger.info("HTTP Request: {}", logFormatter.format(httpLog))
     }
 
-    private fun logResponse(exchange: ServerWebExchange, body: String, durationMs: Long) {
-        val request = exchange.request
-        val response = exchange.response
+    private fun logResponse(
+        response: ServerHttpResponse,
+        uri: URI,
+        method: HttpMethod,
+        body: String,
+        durationMs: Long
+    ) {
         val maskedBody = if (sensitiveJsonBodyFields.isNotEmpty()) {
             obfuscator
                 .maskJsonBody(body, sensitiveJsonBodyFields)
         } else {
             body
-        }
-        val maskedUri = if (sensitiveParameters.isNotEmpty()) {
-            obfuscator.maskParameters(request.uri, sensitiveParameters)
-        } else {
-            request.uri
         }
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
             obfuscator.obfuscateHeaders(response.headers, sensitiveHeaders)
@@ -148,8 +166,8 @@ class LoggingFilter private constructor(
         }
         val httpLog = HttpLog(
             type = HttpLogType.RESPONSE,
-            method = request.method,
-            uri = maskedUri,
+            method = method,
+            uri = uri,
             statusCode = response.statusCode?.value(),
             headers = obfuscatedHeaders,
             body = maskedBody,
@@ -174,6 +192,15 @@ class LoggingFilter private constructor(
 
     private fun isHttpLogLevel(level: HttpLogLevel): Boolean {
         return httpLogLevel.ordinal >= level.ordinal
+    }
+
+    private fun maskUri(request: ServerHttpRequest): URI {
+        val maskedUri = if (sensitiveParameters.isNotEmpty()) {
+            obfuscator.maskParameters(request.uri, sensitiveParameters)
+        } else {
+            request.uri
+        }
+        return maskedUri
     }
 
     companion object {

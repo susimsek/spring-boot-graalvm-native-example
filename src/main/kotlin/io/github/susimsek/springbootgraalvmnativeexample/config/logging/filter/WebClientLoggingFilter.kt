@@ -21,6 +21,7 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeFunction
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.net.URI
 import java.nio.charset.StandardCharsets
 
 class WebClientLoggingFilter private constructor(
@@ -46,6 +47,7 @@ class WebClientLoggingFilter private constructor(
         val stopWatch = StopWatch()
         var requestBody: ByteArray? = null
         stopWatch.start()
+        val uri = maskUri(request)
 
         val processedRequest = if (httpLogLevel == HttpLogLevel.FULL) {
             ClientRequest.from(request)
@@ -64,14 +66,19 @@ class WebClientLoggingFilter private constructor(
         stopWatch.stop()
 
         val durationMs = stopWatch.totalTimeMillis
-        logRequest(request, requestBody?.toString(StandardCharsets.UTF_8) ?: "")
+        logRequest(
+            request,
+            uri,
+            requestBody?.toString(StandardCharsets.UTF_8) ?: ""
+        )
 
-        return processResponse(response, request, durationMs)
+        return processResponse(response, request, uri, durationMs)
     }
 
     private suspend fun processResponse(
         response: ClientResponse,
         request: ClientRequest,
+        uri: URI,
         durationMs: Long
     ): ClientResponse {
         var responseBody: ByteArray? = null
@@ -91,20 +98,25 @@ class WebClientLoggingFilter private constructor(
             response
         }
 
-        logResponse(response, request, responseBody?.toString(StandardCharsets.UTF_8) ?: "", durationMs)
+        logResponse(
+            response,
+            uri,
+            request.method(),
+            responseBody?.toString(StandardCharsets.UTF_8) ?: "",
+            durationMs
+        )
         return mutatedResponse
     }
 
-    private fun logRequest(request: ClientRequest, body: String) {
+    private fun logRequest(
+        request: ClientRequest,
+        uri: URI,
+        body: String
+    ) {
         val maskedBody = if (sensitiveJsonBodyFields.isNotEmpty()) {
             obfuscator.maskJsonBody(body, sensitiveJsonBodyFields)
         } else {
             body
-        }
-        val maskedUri = if (sensitiveParameters.isNotEmpty()) {
-            obfuscator.maskParameters(request.url(), sensitiveParameters)
-        } else {
-            request.url()
         }
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
             obfuscator.obfuscateHeaders(request.headers(), sensitiveHeaders)
@@ -114,7 +126,7 @@ class WebClientLoggingFilter private constructor(
         val httpLog = HttpLog(
             type = HttpLogType.REQUEST,
             method = request.method(),
-            uri = maskedUri,
+            uri = uri,
             statusCode = null,
             headers = obfuscatedHeaders,
             body = maskedBody,
@@ -124,16 +136,17 @@ class WebClientLoggingFilter private constructor(
         logger.info("HTTP Request: {}", logFormatter.format(httpLog))
     }
 
-    private fun logResponse(response: ClientResponse, request: ClientRequest, body: String, durationMs: Long) {
+    private fun logResponse(
+        response: ClientResponse,
+        uri: URI,
+        method: HttpMethod,
+        body: String,
+        durationMs: Long
+    ) {
         val maskedBody = if (sensitiveJsonBodyFields.isNotEmpty()) {
             obfuscator.maskJsonBody(body, sensitiveJsonBodyFields)
         } else {
             body
-        }
-        val maskedUri = if (sensitiveParameters.isNotEmpty()) {
-            obfuscator.maskParameters(request.url(), sensitiveParameters)
-        } else {
-            request.url()
         }
         val obfuscatedHeaders: HttpHeaders? = if (isHttpLogLevel(HttpLogLevel.HEADERS)) {
             obfuscator.obfuscateHeaders(response.headers().asHttpHeaders(), sensitiveHeaders)
@@ -142,8 +155,8 @@ class WebClientLoggingFilter private constructor(
         }
         val httpLog = HttpLog(
             type = HttpLogType.RESPONSE,
-            method = request.method(),
-            uri = maskedUri,
+            method = method,
+            uri = uri,
             statusCode = response.statusCode().value(),
             headers = obfuscatedHeaders,
             body = maskedBody,
@@ -170,6 +183,15 @@ class WebClientLoggingFilter private constructor(
         return httpLogLevel.ordinal >= level.ordinal
     }
 
+    private fun maskUri(request: ClientRequest): URI {
+        val maskedUri = if (sensitiveParameters.isNotEmpty()) {
+            obfuscator.maskParameters(request.url(), sensitiveParameters)
+        } else {
+            request.url()
+        }
+        return maskedUri
+    }
+
     companion object {
         fun builder(
             logFormatter: LogFormatter,
@@ -185,7 +207,10 @@ class WebClientLoggingFilter private constructor(
     ) {
         private var httpLogLevel: HttpLogLevel = HttpLogLevel.FULL
         private val sensitiveHeaders: MutableList<String> = mutableListOf(
-          "Authorization", "Cookie", "Set-Cookie")
+            "Authorization",
+            "Cookie",
+            "Set-Cookie"
+        )
         private val shouldNotLogPatterns: MutableList<Pair<HttpMethod?, String>> = mutableListOf()
 
         private val sensitiveJsonBodyFields: MutableList<String> =
