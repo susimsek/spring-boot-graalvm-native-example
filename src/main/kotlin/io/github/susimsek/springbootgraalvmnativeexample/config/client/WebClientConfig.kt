@@ -16,12 +16,40 @@ import org.springframework.web.reactive.function.client.support.WebClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory
 import reactor.netty.http.client.HttpClient
 
+/**
+ * Configuration class for setting up WebClient and the associated TodoClient.
+ *
+ * This class provides the necessary beans for configuring WebClient with custom timeouts, logging filters,
+ * and client-specific settings. It includes the setup for HTTP timeouts, WebClient filters, and customizations.
+ * Additionally, it creates a `TodoClient` proxy based on WebClient, which is configured through application
+ * properties.
+ *
+ * Example usage:
+ * ```kotlin
+ * @Configuration
+ * class ApplicationConfig {
+ *     @Bean
+ *     fun webClientConfig() = WebClientConfig(webClientProperties)
+ * }
+ * ```
+ */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(WebClientProperties::class)
 class WebClientConfig(
     private val webClientProperties: WebClientProperties
 ) {
 
+    /**
+     * Builds and returns a [WebClient.Builder] for creating WebClient instances with custom configurations.
+     *
+     * - Configures connection and read timeouts.
+     * - Applies logging filters for WebClient requests.
+     * - Allows further customizations through [WebClientCustomizer].
+     *
+     * @param customizerProvider A provider for [WebClientCustomizer] instances to apply additional configurations.
+     * @param webClientLoggingFilter A filter that logs HTTP requests and responses.
+     * @return A configured [WebClient.Builder] instance.
+     */
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     fun webClientBuilder(
@@ -44,6 +72,16 @@ class WebClientConfig(
         return builder
     }
 
+    /**
+     * Creates a [TodoClient] proxy that uses the configured WebClient for making HTTP requests.
+     *
+     * - Uses the `webClientBuilder` to configure the base URL for the `TodoClient`.
+     * - The `TodoClient` configuration (like its base URL) is fetched from the application's properties.
+     * - An [HttpServiceProxyFactory] is used to create a proxy for the `TodoClient`.
+     *
+     * @param webClientBuilder The [WebClient.Builder] used for configuring WebClient.
+     * @return A proxy instance of [TodoClient] configured with WebClient.
+     */
     @Bean
     fun todoClient(webClientBuilder: WebClient.Builder): TodoClient {
         val todoClientConfig = webClientProperties.clients["todoClient"]
