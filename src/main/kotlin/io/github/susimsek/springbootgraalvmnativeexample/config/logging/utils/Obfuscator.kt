@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.springframework.http.HttpHeaders
+import org.springframework.util.StringUtils
 import java.io.IOException
 import java.net.URI
 import java.net.URISyntaxException
@@ -25,6 +26,7 @@ class Obfuscator(
     }
 
     fun maskJsonBody(body: String, sensitivePaths: List<String>): String {
+        if (!StringUtils.hasText(body)) return body
         return try {
             val root = objectMapper.readTree(body)
             sensitivePaths.forEach { path ->
@@ -53,7 +55,7 @@ class Obfuscator(
                     param
                 }
             }
-           return URI(uri.scheme, uri.authority, uri.path, maskedQuery, uri.fragment)
+            return URI(uri.scheme, uri.authority, uri.path, maskedQuery, uri.fragment)
         } catch (ex: URISyntaxException) {
             uri
         }
