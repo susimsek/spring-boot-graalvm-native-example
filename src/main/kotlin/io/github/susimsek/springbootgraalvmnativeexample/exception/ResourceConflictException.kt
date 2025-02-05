@@ -8,7 +8,7 @@ package io.github.susimsek.springbootgraalvmnativeexample.exception
  * @param searchValue the value causing the conflict.
  */
 class ResourceConflictException(
-  resourceName: String,
-  searchCriteria: String,
-  searchValue: Any
+    resourceName: String,
+    searchCriteria: String,
+    searchValue: Any
 ) : RuntimeException("The $resourceName already exists with $searchCriteria: $searchValue")
