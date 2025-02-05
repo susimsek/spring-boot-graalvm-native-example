@@ -1,3 +1,5 @@
+package io.github.susimsek.springbootgraalvmnativeexample.utils
+
 /**
  * Utility object containing helper methods for string manipulation.
  */
