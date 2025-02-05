@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.util.AntPathMatcher
 import org.springframework.util.StopWatch
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ClientResponse
@@ -35,6 +36,7 @@ class WebClientLoggingFilter private constructor(
 ) : ExchangeFilterFunction {
 
     private val logger = LoggerFactory.getLogger(WebClientLoggingFilter::class.java)
+    private val pathMatcher = AntPathMatcher()
 
     override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
         if (httpLogLevel == HttpLogLevel.NONE || shouldNotLog(request)) {
@@ -170,13 +172,8 @@ class WebClientLoggingFilter private constructor(
         val requestPath = request.url().path
         val requestMethod = request.method()
         return shouldNotLogPatterns.any { (method, pattern) ->
-            (method == null || method == requestMethod) && pathMatches(requestPath, pattern)
+            (method == null || method == requestMethod) && pathMatcher.match(pattern, requestPath)
         }
-    }
-
-    private fun pathMatches(requestPath: String, pattern: String): Boolean {
-        val regexPattern = pattern.replace("**", ".*").replace("*", "[^/]*").toRegex()
-        return regexPattern.matches(requestPath)
     }
 
     private fun isHttpLogLevel(level: HttpLogLevel): Boolean {
