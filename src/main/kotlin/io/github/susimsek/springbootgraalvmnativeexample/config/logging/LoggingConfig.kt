@@ -94,11 +94,11 @@ class LoggingConfig {
             .shouldNotLog(
                 "/webjars/**", // Excludes static resources like JavaScript, CSS, and images from logging.
                 "/css/**",
-                "/",
+                "/favicons/**",
                 "/js/**",
+                "/",
                 "/images/**",
                 "/*.html",
-                "/_next/**",
                 "/*.js",
                 "/*.css",
                 "/*.ico",
