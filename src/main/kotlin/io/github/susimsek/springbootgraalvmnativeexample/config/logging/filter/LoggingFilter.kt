@@ -7,7 +7,7 @@ import io.github.susimsek.springbootgraalvmnativeexample.config.logging.formatte
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.model.HttpLog
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.utils.DataBufferCopyUtils
 import io.github.susimsek.springbootgraalvmnativeexample.config.logging.utils.Obfuscator
-import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.reactor.mono
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
@@ -67,11 +67,10 @@ class LoggingFilter private constructor(
      * @return A `Mono<Void>` indicating the filter execution status.
      */
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        val request = exchange.request
-        if (httpLogLevel == HttpLogLevel.NONE || shouldNotLog(request)) {
+        if (httpLogLevel == HttpLogLevel.NONE || shouldNotLog(exchange.request)) {
             return chain.filter(exchange)
         }
-        return mono { processRequest(exchange, chain) }
+        return mono { processRequest(exchange, chain) }.then()
     }
 
     /**
@@ -80,11 +79,9 @@ class LoggingFilter private constructor(
      * @param exchange The current HTTP exchange.
      * @param chain The WebFilterChain.
      */
-    private suspend fun processRequest(exchange: ServerWebExchange, chain: WebFilterChain): Void {
-        val stopWatch = StopWatch()
-        stopWatch.start()
+    private suspend fun processRequest(exchange: ServerWebExchange, chain: WebFilterChain) {
+        val stopWatch = StopWatch().apply { start() }
         val uri = maskUri(exchange.request)
-
         val request = exchange.request
         val decoratedRequest = object : ServerHttpRequestDecorator(exchange.request) {
             override fun getBody(): Flux<DataBuffer> {
@@ -92,11 +89,7 @@ class LoggingFilter private constructor(
                     Flux.from(
                         DataBufferCopyUtils.wrapAndBuffer(super.getBody()) { bytes ->
                             val capturedRequestBody = String(bytes, StandardCharsets.UTF_8)
-                            logRequest(
-                                this,
-                                uri,
-                                capturedRequestBody
-                            )
+                            logRequest(this, uri, capturedRequestBody)
                         }
                     )
                 } else {
@@ -114,25 +107,13 @@ class LoggingFilter private constructor(
                         val responseBody = String(bytes, StandardCharsets.UTF_8)
                         stopWatch.stop()
                         val durationMs = stopWatch.totalTimeMillis
-                        logResponse(
-                            exchange.response,
-                            uri,
-                            exchange.request.method,
-                            responseBody,
-                            durationMs
-                        )
+                        logResponse(exchange.response, uri, exchange.request.method, responseBody, durationMs)
                     }
                     super.writeWith(wrappedBody)
                 } else {
                     stopWatch.stop()
                     val durationMs = stopWatch.totalTimeMillis
-                    logResponse(
-                        exchange.response,
-                        uri,
-                        request.method,
-                        "",
-                        durationMs
-                    )
+                    logResponse(exchange.response, uri, request.method, "", durationMs)
                     super.writeWith(body)
                 }
             }
@@ -147,7 +128,7 @@ class LoggingFilter private constructor(
             .response(decoratedResponse)
             .build()
 
-        return chain.filter(mutatedExchange).awaitSingle()
+        chain.filter(mutatedExchange).awaitSingleOrNull()
     }
 
     /**
