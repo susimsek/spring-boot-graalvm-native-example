@@ -84,10 +84,13 @@ class LoggingFilter private constructor(
         val uri = maskUri(exchange.request)
         val request = exchange.request
         val decoratedRequest = object : ServerHttpRequestDecorator(exchange.request) {
+
+            private var capturedRequestBody: String = ""
+
             init {
                 val contentLength = delegate.headers.getFirst(HttpHeaders.CONTENT_LENGTH)?.toLongOrNull() ?: 0L
                 if (contentLength == 0L) {
-                    logRequest(delegate, uri, "")
+                    logRequest(delegate, uri, capturedRequestBody)
                 }
             }
 
@@ -95,12 +98,13 @@ class LoggingFilter private constructor(
                 return if (httpLogLevel == HttpLogLevel.FULL) {
                     Flux.from(
                         DataBufferCopyUtils.wrapAndBuffer(super.getBody()) { bytes ->
-                            val capturedRequestBody = String(bytes, StandardCharsets.UTF_8)
-                            logRequest(this, uri, capturedRequestBody)
+                            capturedRequestBody = String(bytes, StandardCharsets.UTF_8)
                         }
-                    )
+                    ).doOnComplete {
+                        logRequest(this, uri, capturedRequestBody)
+                    }
                 } else {
-                    logRequest(this, uri, "")
+                    logRequest(this, uri, capturedRequestBody)
                     super.getBody()
                 }
             }
