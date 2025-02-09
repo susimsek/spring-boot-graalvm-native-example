@@ -86,9 +86,7 @@ class LoggingFilter private constructor(
         val decoratedRequest = object : ServerHttpRequestDecorator(exchange.request) {
             init {
                 val contentLength = delegate.headers.getFirst(HttpHeaders.CONTENT_LENGTH)?.toLongOrNull() ?: 0L
-                val method = delegate.method
-
-                if ((method == HttpMethod.GET || method == HttpMethod.DELETE) && contentLength == 0L) {
+                if (contentLength == 0L) {
                     logRequest(delegate, uri, "")
                 }
             }
@@ -129,10 +127,6 @@ class LoggingFilter private constructor(
                     return super.writeWith(wrappedBody)
                 }
                 return super.writeWith(body)
-            }
-
-            override fun writeAndFlushWith(body: Publisher<out Publisher<out DataBuffer>>): Mono<Void> {
-                return writeWith(Flux.from(body).flatMap { it })
             }
         }
 
