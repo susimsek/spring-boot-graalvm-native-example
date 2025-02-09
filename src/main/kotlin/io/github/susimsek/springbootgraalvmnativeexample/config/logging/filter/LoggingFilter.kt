@@ -84,6 +84,15 @@ class LoggingFilter private constructor(
         val uri = maskUri(exchange.request)
         val request = exchange.request
         val decoratedRequest = object : ServerHttpRequestDecorator(exchange.request) {
+            init {
+                val contentLength = delegate.headers.getFirst(HttpHeaders.CONTENT_LENGTH)?.toLongOrNull() ?: 0L
+                val method = delegate.method
+
+                if ((method == HttpMethod.GET || method == HttpMethod.DELETE) && contentLength == 0L) {
+                    logRequest(delegate, uri, "")
+                }
+            }
+
             override fun getBody(): Flux<DataBuffer> {
                 return if (httpLogLevel == HttpLogLevel.FULL) {
                     Flux.from(
@@ -101,21 +110,25 @@ class LoggingFilter private constructor(
 
         val originalResponse = exchange.response
         val decoratedResponse = object : ServerHttpResponseDecorator(originalResponse) {
-            override fun writeWith(body: Publisher<out DataBuffer>): Mono<Void> {
-                return if (httpLogLevel == HttpLogLevel.FULL) {
-                    val wrappedBody = DataBufferCopyUtils.wrapAndBuffer(body) { bytes ->
-                        val responseBody = String(bytes, StandardCharsets.UTF_8)
-                        stopWatch.stop()
-                        val durationMs = stopWatch.totalTimeMillis
-                        logResponse(exchange.response, uri, exchange.request.method, responseBody, durationMs)
-                    }
-                    super.writeWith(wrappedBody)
-                } else {
+            private var capturedResponseBody: String = ""
+
+            init {
+                beforeCommit {
                     stopWatch.stop()
                     val durationMs = stopWatch.totalTimeMillis
-                    logResponse(exchange.response, uri, request.method, "", durationMs)
-                    super.writeWith(body)
+                    logResponse(delegate, uri, request.method, capturedResponseBody, durationMs)
+                    Mono.empty()
                 }
+            }
+
+            override fun writeWith(body: Publisher<out DataBuffer>): Mono<Void> {
+                if (httpLogLevel == HttpLogLevel.FULL) {
+                    val wrappedBody = DataBufferCopyUtils.wrapAndBuffer(body) { bytes ->
+                        capturedResponseBody = String(bytes, StandardCharsets.UTF_8)
+                    }
+                    return super.writeWith(wrappedBody)
+                }
+                return super.writeWith(body)
             }
 
             override fun writeAndFlushWith(body: Publisher<out Publisher<out DataBuffer>>): Mono<Void> {
